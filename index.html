@@ -12,8 +12,8 @@
             padding: 0;
             background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
             font-family: 'Arial', sans-serif;
-            height: 100vh;
-            overflow: hidden;
+            min-height: 100vh;
+            overflow-x: hidden;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -22,8 +22,10 @@
         
         .container {
             text-align: center;
-            max-width: 800px;
-            padding: 2rem;
+            width: 90%;
+            max-width: 600px;
+            padding: 1.5rem;
+            margin: 20px;
             background-color: rgba(255, 255, 255, 0.8);
             border-radius: 20px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
@@ -34,14 +36,14 @@
         
         h1 {
             color: #e74c3c;
-            font-size: 3rem;
+            font-size: 2.5rem;
             margin-bottom: 1rem;
             font-family: 'Dancing Script', cursive;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
         }
         
         p {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             line-height: 1.6;
             margin-bottom: 1.5rem;
             color: #333;
@@ -89,15 +91,15 @@
         
         .button {
             display: inline-block;
-            padding: 12px 24px;
+            padding: 12px 20px;
             background-color: #e74c3c;
             color: white;
             border: none;
             border-radius: 50px;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             cursor: pointer;
             transition: all 0.3s ease;
-            margin: 10px;
+            margin: 8px;
             text-decoration: none;
         }
         
@@ -114,8 +116,8 @@
             margin-top: 20px;
             font-weight: bold;
             color: #e74c3c;
-            font-size: 1.5rem;
-            height: 50px;
+            font-size: 1.3rem;
+            min-height: 50px;
         }
         
         @keyframes heartFloat {
@@ -143,33 +145,6 @@
             }
         }
         
-        .photo-memories {
-            display: flex;
-            justify-content: center;
-            margin: 20px 0;
-            perspective: 1000px;
-        }
-        
-        .photo {
-            width: 150px;
-            height: 150px;
-            margin: 0 15px;
-            background-color: white;
-            border: 5px solid white;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            color: #999;
-            transition: all 0.5s ease;
-            transform: rotateY(20deg);
-        }
-        
-        .photo:hover {
-            transform: rotateY(0deg) scale(1.05);
-        }
-        
         .falling-petals {
             position: absolute;
             top: -100px;
@@ -186,6 +161,33 @@
             opacity: 0.8;
             animation: petal-fall linear infinite;
         }
+        
+        /* 移动设备适配 */
+        @media (max-width: 480px) {
+            .container {
+                padding: 1rem;
+                width: 85%;
+                margin: 10px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            p {
+                font-size: 1rem;
+            }
+            
+            .button {
+                padding: 10px 16px;
+                font-size: 1rem;
+                margin: 6px;
+            }
+            
+            #message {
+                font-size: 1.1rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -196,12 +198,6 @@
         <h1>亲爱的，对不起</h1>
         <p>我知道我犯了错，让你不开心了。你的笑容对我来说是最重要的，看到你难过我很自责。</p>
         <p>希望你能原谅我，我会更加努力成为更好的人，永远珍惜你。</p>
-        
-        <div class="photo-memories">
-            <div class="photo">这里可以放我们的照片1</div>
-            <div class="photo">这里可以放我们的照片2</div>
-            <div class="photo">这里可以放我们的照片3</div>
-        </div>
         
         <div>
             <button class="button" id="forgiveBtn">原谅我吧</button>
@@ -256,7 +252,7 @@
         // 创建花瓣
         function createPetals() {
             const petalsContainer = document.getElementById('petals');
-            const petalCount = 50;
+            const petalCount = 30; // 减少在移动设备上的花瓣数量
             
             for (let i = 0; i < petalCount; i++) {
                 setTimeout(() => {
@@ -264,7 +260,7 @@
                     petal.classList.add('petal');
                     
                     // 随机大小
-                    const size = Math.random() * 15 + 5;
+                    const size = Math.random() * 12 + 5; // 减少花瓣大小
                     petal.style.width = `${size}px`;
                     petal.style.height = `${size}px`;
                     
@@ -293,7 +289,7 @@
                                 opacity: 0.8;
                             }
                             100% {
-                                transform: translate(${Math.random() * 200 - 100}px, ${window.innerHeight}px) rotate(${rotation + 360}deg);
+                                transform: translate(${Math.random() * 100 - 50}px, ${window.innerHeight}px) rotate(${rotation + 360}deg);
                                 opacity: 0.2;
                             }
                         }
@@ -314,15 +310,15 @@
         document.getElementById('forgiveBtn').addEventListener('click', function() {
             const messageElement = document.getElementById('message');
             messageElement.textContent = "谢谢你愿意原谅我 ❤️";
-            messageElement.style.fontSize = "2rem";
+            messageElement.style.fontSize = "1.5rem";
             
             // 创建额外的心形
-            for (let i = 0; i < 50; i++) {
+            for (let i = 0; i < 30; i++) { // 减少心形数量以优化移动设备性能
                 setTimeout(() => {
                     const heart = document.createElement('div');
                     heart.classList.add('heart');
                     
-                    const size = Math.random() * 30 + 15;
+                    const size = Math.random() * 20 + 10;
                     heart.style.width = `${size}px`;
                     heart.style.height = `${size}px`;
                     
@@ -352,7 +348,7 @@
             // 改变按钮样式
             this.style.backgroundColor = "#999";
             document.getElementById('forgiveBtn').style.transform = "scale(1.1)";
-            document.getElementById('forgiveBtn').style.boxShadow = "0 5px 25px rgba(231, 76, 60, 0.6)";
+            document.getElementById('forgiveBtn').style.boxShadow = "0 5px 15px rgba(231, 76, 60, 0.6)";
         });
         
         // 初始化
