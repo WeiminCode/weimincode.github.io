@@ -1,243 +1,365 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh">
 <head>
     <meta charset="UTF-8">
-    <title>我的个人网站</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- 引入 Google 字体 -->
-    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
-    <!-- 自定义样式 -->
+    <title>对不起</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap');
+        
         body {
             margin: 0;
-            font-family: 'Roboto', sans-serif;
-        }
-        /* 导航栏样式 */
-        .navbar {
-            position: fixed;
-            top: 0;
-            width: 100%;
-            background-color: #333;
-            overflow: hidden;
-            z-index: 1000;
-        }
-        .navbar a {
-            float: left;
-            display: block;
-            color: #f2f2f2;
-            text-align: center;
-            padding: 14px 20px;
-            text-decoration: none;
-        }
-        .navbar a:hover {
-            background-color: #575757;
-            color: #fff;
-        }
-        /* Banner 样式 */
-        .banner {
-            background-image: url('https://source.unsplash.com/random/1600x900');
-            background-size: cover;
-            background-position: center;
+            padding: 0;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+            font-family: 'Arial', sans-serif;
             height: 100vh;
-            color: white;
-            text-align: center;
-            padding-top: 50px;
-        }
-        .banner h1 {
-            font-size: 60px;
-            margin-top: 0;
-        }
-        .banner p {
-            font-size: 24px;
-        }
-        /* 主体内容样式 */
-        .content {
-            padding: 60px 20px;
-        }
-        .section {
-            max-width: 1000px;
-            margin: 0 auto;
-            margin-bottom: 60px;
-        }
-        .section h2 {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-        /* 关于我部分 */
-        .about {
+            overflow: hidden;
             display: flex;
-            flex-wrap: wrap;
+            flex-direction: column;
             align-items: center;
-        }
-        .about img {
-            flex: 1 1 300px;
-            max-width: 300px;
-            border-radius: 50%;
-            margin: 0 auto;
-        }
-        .about-text {
-            flex: 2 1 300px;
-            padding: 20px;
-        }
-        /* 作品集部分 */
-        .portfolio {
-            display: flex;
-            flex-wrap: wrap;
             justify-content: center;
         }
-        .portfolio-item {
-            flex: 1 1 300px;
-            margin: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        .portfolio-item img {
-            width: 100%;
-            height: auto;
-        }
-        .portfolio-item h3 {
+        
+        .container {
             text-align: center;
-            padding: 10px;
+            max-width: 800px;
+            padding: 2rem;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            position: relative;
+            z-index: 1;
+            animation: fadeIn 2s ease-in-out;
         }
-        /* 联系表单部分 */
-        .contact-form {
-            max-width: 600px;
-            margin: 0 auto;
+        
+        h1 {
+            color: #e74c3c;
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            font-family: 'Dancing Script', cursive;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
         }
-        .contact-form label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
+        
+        p {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            color: #333;
         }
-        .contact-form input,
-        .contact-form textarea {
+        
+        .hearts {
+            position: absolute;
             width: 100%;
-            padding: 12px;
-            margin-bottom: 20px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 0;
         }
-        .contact-form button {
-            background-color: #333;
+        
+        .heart {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: #e74c3c;
+            transform: rotate(45deg);
+            animation: heartFloat 5s ease-in infinite;
+            opacity: 0;
+        }
+        
+        .heart:before,
+        .heart:after {
+            content: "";
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: #e74c3c;
+            border-radius: 50%;
+        }
+        
+        .heart:before {
+            top: -10px;
+            left: 0;
+        }
+        
+        .heart:after {
+            top: 0;
+            left: -10px;
+        }
+        
+        .button {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #e74c3c;
             color: white;
-            padding: 14px 20px;
             border: none;
+            border-radius: 50px;
+            font-size: 1.2rem;
             cursor: pointer;
-            width: 100%;
-        }
-        .contact-form button:hover {
-            background-color: #575757;
-        }
-        /* 页脚样式 */
-        .footer {
-            background-color: #333;
-            color: #f2f2f2;
-            text-align: center;
-            padding: 20px;
-        }
-        .footer a {
-            color: #f2f2f2;
-            margin: 0 10px;
+            transition: all 0.3s ease;
+            margin: 10px;
             text-decoration: none;
         }
-        .footer a:hover {
-            color: #fff;
+        
+        .button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
         }
-        /* 响应式设计 */
-        @media (max-width: 768px) {
-            .about {
-                flex-direction: column;
-                text-align: center;
+        
+        .hidden {
+            display: none;
+        }
+        
+        #message {
+            margin-top: 20px;
+            font-weight: bold;
+            color: #e74c3c;
+            font-size: 1.5rem;
+            height: 50px;
+        }
+        
+        @keyframes heartFloat {
+            0% {
+                transform: rotate(45deg) translateY(0) scale(0.3);
+                opacity: 0;
             }
-            .about-text {
-                padding: 20px 0;
+            20% {
+                opacity: 0.8;
             }
-            .navbar a {
-                float: none;
-                width: 100%;
-                text-align: left;
-                padding-left: 20px;
+            100% {
+                transform: rotate(45deg) translateY(-800px) scale(1);
+                opacity: 0;
             }
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .photo-memories {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+            perspective: 1000px;
+        }
+        
+        .photo {
+            width: 150px;
+            height: 150px;
+            margin: 0 15px;
+            background-color: white;
+            border: 5px solid white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #999;
+            transition: all 0.5s ease;
+            transform: rotateY(20deg);
+        }
+        
+        .photo:hover {
+            transform: rotateY(0deg) scale(1.05);
+        }
+        
+        .falling-petals {
+            position: absolute;
+            top: -100px;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        
+        .petal {
+            position: absolute;
+            background-color: #ffb6c1;
+            border-radius: 50% 0 50% 0;
+            opacity: 0.8;
+            animation: petal-fall linear infinite;
         }
     </style>
 </head>
 <body>
-
-    <!-- 导航栏 -->
-    <div class="navbar">
-        <a href="#home">首页</a>
-        <a href="#about">关于我</a>
-        <a href="#portfolio">作品集</a>
-        <a href="#contact">联系我</a>
+    <div class="hearts" id="hearts"></div>
+    <div class="falling-petals" id="petals"></div>
+    
+    <div class="container">
+        <h1>亲爱的，对不起</h1>
+        <p>我知道我犯了错，让你不开心了。你的笑容对我来说是最重要的，看到你难过我很自责。</p>
+        <p>希望你能原谅我，我会更加努力成为更好的人，永远珍惜你。</p>
+        
+        <div class="photo-memories">
+            <div class="photo">这里可以放我们的照片1</div>
+            <div class="photo">这里可以放我们的照片2</div>
+            <div class="photo">这里可以放我们的照片3</div>
+        </div>
+        
+        <div>
+            <button class="button" id="forgiveBtn">原谅我吧</button>
+            <button class="button" id="thinkBtn">再考虑一下</button>
+        </div>
+        
+        <div id="message"></div>
     </div>
 
-    <!-- Banner -->
-    <section id="home" class="banner">
-        <h1>欢迎来到我的个人网站</h1>
-        <p>我是热爱技术的开发者</p>
-    </section>
-
-    <!-- 主体内容 -->
-    <div class="content">
-
-        <!-- 关于我 -->
-        <section id="about" class="section">
-            <h2>关于我</h2>
-            <div class="about">
-                <img src="https://oss.guyuehome.com/upload/2024/10/241739026135/11111.jpg" alt="我的照片">
-                <div class="about-text">
-                    <p>九幽阴灵，诸天神魔。以我血躯，奉为牺牲。三生七世，永坠阎罗。只为情故，虽死不悔。</p>
-                    <p>金铃清脆噬血误，一生总被痴情诉。</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- 作品集 -->
-        <section id="portfolio" class="section">
-            <h2>作品集</h2>
-            <div class="portfolio">
-                <div class="portfolio-item">
-                    <img src="https://oss.guyuehome.com/upload/2024/10/241739026135/11111.jpg" alt="项目一">
-                    <h3>项目一</h3>
-                </div>
-                <div class="portfolio-item">
-                    <img src="https://oss.guyuehome.com/upload/2024/10/241739026135/11111.jpg" alt="项目二">
-                    <h3>项目二</h3>
-                </div>
-                <div class="portfolio-item">
-                    <img src="https://oss.guyuehome.com/upload/2024/10/241739026135/11111.jpg" alt="项目三">
-                    <h3>项目三</h3>
-                </div>
-            </div>
-        </section>
-
-        <!-- 联系我 -->
-        <section id="contact" class="section">
-            <h2>联系我</h2>
-            <div class="contact-form">
-                <form action="https://formspree.io/f/{your-form-id}" method="POST">
-                    <label for="name">姓名</label>
-                    <input type="text" id="name" name="百里屠苏" required>
-
-                    <label for="email">邮箱</label>
-                    <input type="email" id="email" name="幺三九白酒啤酒葡萄酒" required>
-
-                    <label for="message">留言</label>
-                    <textarea id="message" name="焚寂" rows="5" required></textarea>
-
-                    <button type="submit">发送</button>
-                </form>
-            </div>
-        </section>
-
-    </div>
-
-    <!-- 页脚 -->
-    <div class="footer">
-        <p>© 2024 诛仙</p>
-        <p>
-            <a href="https://github.com/qomolangmah" target="_blank">GitHub</a> 
-        </p>
-    </div>
-
+    <script>
+        // 创建漂浮的心形
+        function createHearts() {
+            const heartsContainer = document.getElementById('hearts');
+            const heartCount = 30;
+            
+            for (let i = 0; i < heartCount; i++) {
+                setTimeout(() => {
+                    const heart = document.createElement('div');
+                    heart.classList.add('heart');
+                    
+                    // 随机大小
+                    const size = Math.random() * 20 + 10;
+                    heart.style.width = `${size}px`;
+                    heart.style.height = `${size}px`;
+                    
+                    // 随机位置
+                    const left = Math.random() * 100;
+                    heart.style.left = `${left}%`;
+                    
+                    // 随机动画持续时间
+                    const duration = Math.random() * 4 + 3;
+                    heart.style.animationDuration = `${duration}s`;
+                    
+                    // 随机延迟
+                    const delay = Math.random() * 5;
+                    heart.style.animationDelay = `${delay}s`;
+                    
+                    heartsContainer.appendChild(heart);
+                    
+                    // 移除心形元素，避免过多DOM元素
+                    setTimeout(() => {
+                        heartsContainer.removeChild(heart);
+                    }, (duration + delay) * 1000);
+                    
+                }, i * 300);
+            }
+            
+            // 循环创建心形
+            setTimeout(createHearts, 10000);
+        }
+        
+        // 创建花瓣
+        function createPetals() {
+            const petalsContainer = document.getElementById('petals');
+            const petalCount = 50;
+            
+            for (let i = 0; i < petalCount; i++) {
+                setTimeout(() => {
+                    const petal = document.createElement('div');
+                    petal.classList.add('petal');
+                    
+                    // 随机大小
+                    const size = Math.random() * 15 + 5;
+                    petal.style.width = `${size}px`;
+                    petal.style.height = `${size}px`;
+                    
+                    // 随机位置
+                    const left = Math.random() * 100;
+                    petal.style.left = `${left}%`;
+                    
+                    // 随机颜色
+                    const hue = Math.random() * 30 + 330; // 粉红色到紫色范围
+                    petal.style.backgroundColor = `hsl(${hue}, 100%, 85%)`;
+                    
+                    // 随机旋转
+                    const rotation = Math.random() * 360;
+                    petal.style.transform = `rotate(${rotation}deg)`;
+                    
+                    // 随机动画持续时间
+                    const duration = Math.random() * 8 + 10;
+                    petal.style.animation = `petal-fall ${duration}s linear infinite`;
+                    
+                    // 添加关键帧动画
+                    const styleSheet = document.styleSheets[0];
+                    const keyframes = `
+                        @keyframes petal-fall {
+                            0% {
+                                transform: translate(${Math.random() * 10 - 5}px, -10px) rotate(${rotation}deg);
+                                opacity: 0.8;
+                            }
+                            100% {
+                                transform: translate(${Math.random() * 200 - 100}px, ${window.innerHeight}px) rotate(${rotation + 360}deg);
+                                opacity: 0.2;
+                            }
+                        }
+                    `;
+                    try {
+                        styleSheet.insertRule(keyframes, styleSheet.cssRules.length);
+                    } catch(e) {
+                        console.log("Could not insert animation rule");
+                    }
+                    
+                    petalsContainer.appendChild(petal);
+                    
+                }, i * 200);
+            }
+        }
+        
+        // 按钮交互
+        document.getElementById('forgiveBtn').addEventListener('click', function() {
+            const messageElement = document.getElementById('message');
+            messageElement.textContent = "谢谢你愿意原谅我 ❤️";
+            messageElement.style.fontSize = "2rem";
+            
+            // 创建额外的心形
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const heart = document.createElement('div');
+                    heart.classList.add('heart');
+                    
+                    const size = Math.random() * 30 + 15;
+                    heart.style.width = `${size}px`;
+                    heart.style.height = `${size}px`;
+                    
+                    const left = Math.random() * 100;
+                    heart.style.left = `${left}%`;
+                    
+                    const duration = Math.random() * 4 + 3;
+                    heart.style.animationDuration = `${duration}s`;
+                    
+                    const delay = Math.random() * 2;
+                    heart.style.animationDelay = `${delay}s`;
+                    
+                    document.getElementById('hearts').appendChild(heart);
+                    
+                    setTimeout(() => {
+                        document.getElementById('hearts').removeChild(heart);
+                    }, (duration + delay) * 1000);
+                    
+                }, i * 100);
+            }
+        });
+        
+        document.getElementById('thinkBtn').addEventListener('click', function() {
+            const messageElement = document.getElementById('message');
+            messageElement.textContent = "我会一直等你，不会放弃 💕";
+            
+            // 改变按钮样式
+            this.style.backgroundColor = "#999";
+            document.getElementById('forgiveBtn').style.transform = "scale(1.1)";
+            document.getElementById('forgiveBtn').style.boxShadow = "0 5px 25px rgba(231, 76, 60, 0.6)";
+        });
+        
+        // 初始化
+        window.onload = function() {
+            createHearts();
+            createPetals();
+        };
+    </script>
 </body>
 </html>
