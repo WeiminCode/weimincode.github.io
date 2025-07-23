@@ -249,15 +249,82 @@
             background-color: var(--light-bg);
             border-radius: 8px;
             margin-bottom: 10px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .history-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .history-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+        }
+        
+        .history-item.food::before {
+            background-color: #ff6b6b;
+        }
+        
+        .history-item.activity::before {
+            background-color: #4ecdc4;
+        }
+        
+        .history-item.movie::before {
+            background-color: #f9c74f;
+        }
+        
+        .history-item.custom::before {
+            background-color: #8675a9;
         }
         
         .history-item-text {
             font-weight: 500;
+            margin-bottom: 3px;
+            font-size: 1.05rem;
         }
         
         .history-category {
-            color: var(--primary-color);
+            color: #666;
             font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .history-category i {
+            margin-right: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .history-time {
+            color: #999;
+            font-size: 0.75rem;
+            margin-top: 5px;
+        }
+        
+        .history-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .history-action-btn {
+            background: transparent;
+            border: none;
+            padding: 5px;
+            color: #888;
+            cursor: pointer;
+            transition: color 0.2s ease;
+            font-size: 0.9rem;
+        }
+        
+        .history-action-btn:hover {
+            color: var(--primary-color);
         }
         
         .modal {
@@ -723,23 +790,107 @@
             
             decisionHistory.forEach(item => {
                 const li = document.createElement('li');
-                li.className = 'history-item';
+                li.className = 'history-item ' + item.category;
                 
                 let categoryText = '';
-                if (item.category === 'food') categoryText = '吃什么';
-                else if (item.category === 'activity') categoryText = '去哪玩';
-                else if (item.category === 'movie') categoryText = '看什么';
-                else categoryText = '自定义';
+                let categoryIcon = '';
+                if (item.category === 'food') {
+                    categoryText = '吃什么';
+                    categoryIcon = '<i class="fas fa-utensils"></i>';
+                }
+                else if (item.category === 'activity') {
+                    categoryText = '去哪玩';
+                    categoryIcon = '<i class="fas fa-walking"></i>';
+                }
+                else if (item.category === 'movie') {
+                    categoryText = '看什么';
+                    categoryIcon = '<i class="fas fa-film"></i>';
+                }
+                else {
+                    categoryText = '自定义';
+                    categoryIcon = '<i class="fas fa-plus"></i>';
+                }
+                
+                // 格式化时间
+                const date = new Date(item.timestamp);
+                const timeString = formatTime(date);
                 
                 li.innerHTML = `
                     <div>
                         <div class="history-item-text">${item.decision}</div>
-                        <div class="history-category">${categoryText}</div>
+                        <div class="history-category">${categoryIcon} ${categoryText}</div>
+                        <div class="history-time">${timeString}</div>
+                    </div>
+                    <div class="history-actions">
+                        <button class="history-action-btn reuse-btn" title="再次使用此选项" data-index="${decisionHistory.indexOf(item)}">
+                            <i class="fas fa-redo-alt"></i>
+                        </button>
+                        <button class="history-action-btn delete-btn" title="删除记录" data-index="${decisionHistory.indexOf(item)}">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
                     </div>
                 `;
                 
                 historyList.appendChild(li);
             });
+            
+            // 添加再次使用事件
+            document.querySelectorAll('.reuse-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const index = parseInt(e.currentTarget.dataset.index);
+                    const item = decisionHistory[index];
+                    
+                    // 设置当前类别
+                    selectCategory(item.category);
+                    
+                    // 添加该选项到现有选项列表
+                    if (!currentOptions.includes(item.decision)) {
+                        currentOptions.unshift(item.decision); // 添加到开头
+                        optionsList.innerHTML = '';
+                        currentOptions.forEach(option => {
+                            addOptionToList(option);
+                        });
+                    }
+                    
+                    // 滚动到选项区域
+                    optionsContainer.scrollIntoView({ behavior: 'smooth' });
+                });
+            });
+            
+            // 添加删除事件
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const index = parseInt(e.currentTarget.dataset.index);
+                    decisionHistory.splice(index, 1);
+                    localStorage.setItem('decisionHistory', JSON.stringify(decisionHistory));
+                    updateHistoryList();
+                });
+            });
+        }
+        
+        // 格式化时间
+        function formatTime(date) {
+            const now = new Date();
+            const diff = now - date; // 时间差（毫秒）
+            
+            // 不同的时间格式
+            if (diff < 60000) { // 小于1分钟
+                return '刚刚';
+            } else if (diff < 3600000) { // 小于1小时
+                return `${Math.floor(diff / 60000)}分钟前`;
+            } else if (diff < 86400000) { // 小于1天
+                return `${Math.floor(diff / 3600000)}小时前`;
+            } else if (diff < 604800000) { // 小于1周
+                return `${Math.floor(diff / 86400000)}天前`;
+            } else {
+                // 日期格式化
+                return `${date.getFullYear()}-${padZero(date.getMonth() + 1)}-${padZero(date.getDate())}`;
+            }
+        }
+        
+        // 数字补零
+        function padZero(num) {
+            return num < 10 ? `0${num}` : num;
         }
         
         // 更新保存的选项集列表
