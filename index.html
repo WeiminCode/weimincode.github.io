@@ -3,359 +3,901 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>对不起</title>
+    <title>选择助手</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap');
+        :root {
+            --primary-color: #ff6b6b;
+            --secondary-color: #4ecdc4;
+            --text-color: #333;
+            --light-bg: #f7f7f7;
+            --card-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            --gradient: linear-gradient(135deg, var(--primary-color) 0%, #ff8e8e 100%);
+        }
         
-        body {
+        * {
             margin: 0;
             padding: 0;
-            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
-            font-family: 'Arial', sans-serif;
+            box-sizing: border-box;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+        }
+        
+        body {
+            background-color: var(--light-bg);
+            color: var(--text-color);
             min-height: 100vh;
-            overflow-x: hidden;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            color: var(--primary-color);
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 1rem;
+            margin-bottom: 20px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: var(--card-shadow);
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .category-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .category-button {
+            flex: 1;
+            min-width: calc(50% - 10px);
+            padding: 15px 10px;
+            border: none;
+            border-radius: 10px;
+            background: var(--gradient);
+            color: white;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 3px 10px rgba(255, 107, 107, 0.2);
         }
         
-        .container {
-            text-align: center;
-            width: 90%;
-            max-width: 600px;
-            padding: 1.5rem;
-            margin: 20px;
-            background-color: rgba(255, 255, 255, 0.8);
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            position: relative;
-            z-index: 1;
-            animation: fadeIn 2s ease-in-out;
+        .category-button:hover, .category-button:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
         }
         
-        h1 {
-            color: #e74c3c;
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-            font-family: 'Dancing Script', cursive;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        .category-button i {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
         }
         
-        p {
-            font-size: 1.1rem;
-            line-height: 1.6;
-            margin-bottom: 1.5rem;
-            color: #333;
+        .options-container {
+            margin-top: 20px;
         }
         
-        .hearts {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            pointer-events: none;
-            z-index: 0;
+        .options-list {
+            list-style: none;
+            margin-bottom: 15px;
         }
         
-        .heart {
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            background-color: #e74c3c;
-            transform: rotate(45deg);
-            animation: heartFloat 5s ease-in infinite;
-            opacity: 0;
+        .option-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            background-color: var(--light-bg);
+            border-radius: 8px;
+            margin-bottom: 10px;
         }
         
-        .heart:before,
-        .heart:after {
-            content: "";
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            background-color: #e74c3c;
-            border-radius: 50%;
-        }
-        
-        .heart:before {
-            top: -10px;
-            left: 0;
-        }
-        
-        .heart:after {
-            top: 0;
-            left: -10px;
-        }
-        
-        .button {
-            display: inline-block;
-            padding: 12px 20px;
-            background-color: #e74c3c;
-            color: white;
+        .option-item input {
+            flex: 1;
             border: none;
-            border-radius: 50px;
-            font-size: 1.1rem;
+            background: transparent;
+            padding: 5px;
+            font-size: 1rem;
+        }
+        
+        .option-item button {
+            background: transparent;
+            border: none;
+            color: #999;
+            cursor: pointer;
+            padding: 5px;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
             cursor: pointer;
             transition: all 0.3s ease;
-            margin: 8px;
-            text-decoration: none;
         }
         
-        .button:hover {
-            transform: scale(1.05);
-            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
         }
         
-        .hidden {
+        .btn-secondary {
+            background: var(--secondary-color);
+            color: white;
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #ddd;
+            color: #666;
+        }
+        
+        .btn:hover, .btn:focus {
+            opacity: 0.9;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .result-card {
+            text-align: center;
+            padding: 30px 20px;
             display: none;
         }
         
-        #message {
-            margin-top: 20px;
-            font-weight: bold;
-            color: #e74c3c;
-            font-size: 1.3rem;
-            min-height: 50px;
+        .result-title {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 15px;
         }
         
-        @keyframes heartFloat {
-            0% {
-                transform: rotate(45deg) translateY(0) scale(0.3);
-                opacity: 0;
-            }
-            20% {
-                opacity: 0.8;
-            }
-            100% {
-                transform: rotate(45deg) translateY(-800px) scale(1);
-                opacity: 0;
-            }
+        .result {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .result-emoji {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+        
+        .shake-animation {
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+        }
+        
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
         }
         
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
-        .falling-petals {
+        .confetti {
             position: absolute;
-            top: -100px;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            opacity: 0;
             pointer-events: none;
         }
         
-        .petal {
-            position: absolute;
-            background-color: #ffb6c1;
-            border-radius: 50% 0 50% 0;
-            opacity: 0.8;
-            animation: petal-fall linear infinite;
+        .loading {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 3px solid rgba(255,107,107,0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s ease-in-out infinite;
         }
         
-        /* 移动设备适配 */
-        @media (max-width: 480px) {
-            .container {
-                padding: 1rem;
-                width: 85%;
-                margin: 10px;
-            }
-            
-            h1 {
-                font-size: 2rem;
-            }
-            
-            p {
-                font-size: 1rem;
-            }
-            
-            .button {
-                padding: 10px 16px;
-                font-size: 1rem;
-                margin: 6px;
-            }
-            
-            #message {
-                font-size: 1.1rem;
-            }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .history-list {
+            list-style: none;
+            margin-top: 15px;
+        }
+        
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background-color: var(--light-bg);
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        
+        .history-item-text {
+            font-weight: 500;
+        }
+        
+        .history-category {
+            color: var(--primary-color);
+            font-size: 0.8rem;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: var(--card-shadow);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .modal-close {
+            background: transparent;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+        
+        .tab-container {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            color: #666;
+            transition: all 0.3s ease;
+        }
+        
+        .tab.active {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
         }
     </style>
 </head>
 <body>
-    <div class="hearts" id="hearts"></div>
-    <div class="falling-petals" id="petals"></div>
-    
     <div class="container">
-        <h1>亲爱的，对不起</h1>
-        <p>我知道我犯了错，让你不开心了。你的笑容对我来说是最重要的，看到你难过我很自责。</p>
-        <p>希望你能原谅我，我会更加努力成为更好的人，永远珍惜你。</p>
+        <header>
+            <h1>选择助手</h1>
+            <p class="subtitle">告别选择困难症 💫</p>
+        </header>
         
-        <div>
-            <button class="button" id="forgiveBtn">原谅我吧</button>
-            <button class="button" id="thinkBtn">再考虑一下</button>
+        <div class="card">
+            <div class="category-selector">
+                <button class="category-button" data-category="food">
+                    <i class="fas fa-utensils"></i>
+                    吃什么
+                </button>
+                <button class="category-button" data-category="activity">
+                    <i class="fas fa-walking"></i>
+                    去哪玩
+                </button>
+                <button class="category-button" data-category="movie">
+                    <i class="fas fa-film"></i>
+                    看什么
+                </button>
+                <button class="category-button" data-category="custom">
+                    <i class="fas fa-plus"></i>
+                    自定义
+                </button>
+            </div>
+            
+            <div id="optionsContainer" class="options-container" style="display: none;">
+                <h3 id="categoryTitle">选项</h3>
+                <ul id="optionsList" class="options-list">
+                    <!-- 选项会动态添加在这里 -->
+                </ul>
+                
+                <div class="action-buttons">
+                    <button id="addOptionBtn" class="btn btn-outline">
+                        <i class="fas fa-plus"></i> 添加选项
+                    </button>
+                </div>
+                
+                <div class="action-buttons">
+                    <button id="decideBtn" class="btn btn-primary">开始决定</button>
+                    <button id="saveBtn" class="btn btn-secondary">保存选项</button>
+                </div>
+            </div>
         </div>
         
-        <div id="message"></div>
+        <div id="resultCard" class="card result-card">
+            <p class="result-title">你们的选择是...</p>
+            <div class="result-emoji">🎉</div>
+            <div id="result" class="result"></div>
+            <div class="action-buttons">
+                <button id="againBtn" class="btn btn-outline">再决定一次</button>
+                <button id="acceptBtn" class="btn btn-primary">就它了！</button>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="tab-container">
+                <div class="tab active" data-tab="history">历史记录</div>
+                <div class="tab" data-tab="saved">已保存选项</div>
+            </div>
+            
+            <div id="historyTab" class="tab-content active">
+                <h3>最近的决定</h3>
+                <ul id="historyList" class="history-list">
+                    <!-- 历史记录会动态添加在这里 -->
+                    <li class="history-item">
+                        <div>
+                            <div class="history-item-text">暂无历史记录</div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            
+            <div id="savedTab" class="tab-content">
+                <h3>已保存的选项集</h3>
+                <ul id="savedSetsList" class="history-list">
+                    <!-- 保存的选项集会动态添加在这里 -->
+                    <li class="history-item">
+                        <div>
+                            <div class="history-item-text">暂无保存的选项</div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <div id="saveModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>保存选项集</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div>
+                <div class="option-item">
+                    <input type="text" id="setNameInput" placeholder="输入选项集名称" />
+                </div>
+                <div class="action-buttons">
+                    <button id="confirmSaveBtn" class="btn btn-primary">保存</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
-        // 创建漂浮的心形
-        function createHearts() {
-            const heartsContainer = document.getElementById('hearts');
-            const heartCount = 30;
-            
-            for (let i = 0; i < heartCount; i++) {
-                setTimeout(() => {
-                    const heart = document.createElement('div');
-                    heart.classList.add('heart');
-                    
-                    // 随机大小
-                    const size = Math.random() * 20 + 10;
-                    heart.style.width = `${size}px`;
-                    heart.style.height = `${size}px`;
-                    
-                    // 随机位置
-                    const left = Math.random() * 100;
-                    heart.style.left = `${left}%`;
-                    
-                    // 随机动画持续时间
-                    const duration = Math.random() * 4 + 3;
-                    heart.style.animationDuration = `${duration}s`;
-                    
-                    // 随机延迟
-                    const delay = Math.random() * 5;
-                    heart.style.animationDelay = `${delay}s`;
-                    
-                    heartsContainer.appendChild(heart);
-                    
-                    // 移除心形元素，避免过多DOM元素
-                    setTimeout(() => {
-                        heartsContainer.removeChild(heart);
-                    }, (duration + delay) * 1000);
-                    
-                }, i * 300);
-            }
-            
-            // 循环创建心形
-            setTimeout(createHearts, 10000);
-        }
+        // 预设选项数据
+        const presetOptions = {
+            food: ["火锅", "烤肉", "西餐", "日料", "川菜", "小吃", "海鲜", "粤菜", "面食", "快餐"],
+            activity: ["电影院", "逛街", "公园", "游乐场", "咖啡厅", "博物馆", "桌游", "KTV", "健身", "爬山"],
+            movie: ["爱情片", "喜剧片", "科幻片", "动作片", "恐怖片", "动画片", "纪录片", "悬疑片", "剧情片"]
+        };
         
-        // 创建花瓣
-        function createPetals() {
-            const petalsContainer = document.getElementById('petals');
-            const petalCount = 30; // 减少在移动设备上的花瓣数量
-            
-            for (let i = 0; i < petalCount; i++) {
-                setTimeout(() => {
-                    const petal = document.createElement('div');
-                    petal.classList.add('petal');
-                    
-                    // 随机大小
-                    const size = Math.random() * 12 + 5; // 减少花瓣大小
-                    petal.style.width = `${size}px`;
-                    petal.style.height = `${size}px`;
-                    
-                    // 随机位置
-                    const left = Math.random() * 100;
-                    petal.style.left = `${left}%`;
-                    
-                    // 随机颜色
-                    const hue = Math.random() * 30 + 330; // 粉红色到紫色范围
-                    petal.style.backgroundColor = `hsl(${hue}, 100%, 85%)`;
-                    
-                    // 随机旋转
-                    const rotation = Math.random() * 360;
-                    petal.style.transform = `rotate(${rotation}deg)`;
-                    
-                    // 随机动画持续时间
-                    const duration = Math.random() * 8 + 10;
-                    petal.style.animation = `petal-fall ${duration}s linear infinite`;
-                    
-                    // 添加关键帧动画
-                    const styleSheet = document.styleSheets[0];
-                    const keyframes = `
-                        @keyframes petal-fall {
-                            0% {
-                                transform: translate(${Math.random() * 10 - 5}px, -10px) rotate(${rotation}deg);
-                                opacity: 0.8;
-                            }
-                            100% {
-                                transform: translate(${Math.random() * 100 - 50}px, ${window.innerHeight}px) rotate(${rotation + 360}deg);
-                                opacity: 0.2;
-                            }
-                        }
-                    `;
-                    try {
-                        styleSheet.insertRule(keyframes, styleSheet.cssRules.length);
-                    } catch(e) {
-                        console.log("Could not insert animation rule");
-                    }
-                    
-                    petalsContainer.appendChild(petal);
-                    
-                }, i * 200);
-            }
-        }
+        // DOM 元素
+        const optionsContainer = document.getElementById('optionsContainer');
+        const optionsList = document.getElementById('optionsList');
+        const categoryTitle = document.getElementById('categoryTitle');
+        const addOptionBtn = document.getElementById('addOptionBtn');
+        const decideBtn = document.getElementById('decideBtn');
+        const saveBtn = document.getElementById('saveBtn');
+        const resultCard = document.getElementById('resultCard');
+        const resultElement = document.getElementById('result');
+        const againBtn = document.getElementById('againBtn');
+        const acceptBtn = document.getElementById('acceptBtn');
+        const saveModal = document.getElementById('saveModal');
+        const setNameInput = document.getElementById('setNameInput');
+        const confirmSaveBtn = document.getElementById('confirmSaveBtn');
+        const historyList = document.getElementById('historyList');
+        const savedSetsList = document.getElementById('savedSetsList');
         
-        // 按钮交互
-        document.getElementById('forgiveBtn').addEventListener('click', function() {
-            const messageElement = document.getElementById('message');
-            messageElement.textContent = "谢谢你愿意原谅我 ❤️";
-            messageElement.style.fontSize = "1.5rem";
-            
-            // 创建额外的心形
-            for (let i = 0; i < 30; i++) { // 减少心形数量以优化移动设备性能
-                setTimeout(() => {
-                    const heart = document.createElement('div');
-                    heart.classList.add('heart');
-                    
-                    const size = Math.random() * 20 + 10;
-                    heart.style.width = `${size}px`;
-                    heart.style.height = `${size}px`;
-                    
-                    const left = Math.random() * 100;
-                    heart.style.left = `${left}%`;
-                    
-                    const duration = Math.random() * 4 + 3;
-                    heart.style.animationDuration = `${duration}s`;
-                    
-                    const delay = Math.random() * 2;
-                    heart.style.animationDelay = `${delay}s`;
-                    
-                    document.getElementById('hearts').appendChild(heart);
-                    
-                    setTimeout(() => {
-                        document.getElementById('hearts').removeChild(heart);
-                    }, (duration + delay) * 1000);
-                    
-                }, i * 100);
-            }
-        });
-        
-        document.getElementById('thinkBtn').addEventListener('click', function() {
-            const messageElement = document.getElementById('message');
-            messageElement.textContent = "我会一直等你，不会放弃 💕";
-            
-            // 改变按钮样式
-            this.style.backgroundColor = "#999";
-            document.getElementById('forgiveBtn').style.transform = "scale(1.1)";
-            document.getElementById('forgiveBtn').style.boxShadow = "0 5px 15px rgba(231, 76, 60, 0.6)";
-        });
+        // 当前状态
+        let currentCategory = '';
+        let currentOptions = [];
+        let decisionHistory = JSON.parse(localStorage.getItem('decisionHistory')) || [];
+        let savedSets = JSON.parse(localStorage.getItem('savedSets')) || {};
         
         // 初始化
-        window.onload = function() {
-            createHearts();
-            createPetals();
-        };
+        function init() {
+            // 初始化类别按钮点击事件
+            document.querySelectorAll('.category-button').forEach(button => {
+                button.addEventListener('click', () => {
+                    const category = button.dataset.category;
+                    selectCategory(category);
+                });
+            });
+            
+            // 初始化添加选项按钮
+            addOptionBtn.addEventListener('click', addOption);
+            
+            // 初始化决定按钮
+            decideBtn.addEventListener('click', makeDecision);
+            
+            // 初始化再次决定按钮
+            againBtn.addEventListener('click', makeDecision);
+            
+            // 初始化保存按钮
+            saveBtn.addEventListener('click', () => {
+                saveModal.style.display = 'flex';
+            });
+            
+            // 初始化确认保存按钮
+            confirmSaveBtn.addEventListener('click', saveOptionSet);
+            
+            // 初始化接受决定按钮
+            acceptBtn.addEventListener('click', acceptDecision);
+            
+            // 初始化模态框关闭按钮
+            document.querySelectorAll('.modal-close').forEach(button => {
+                button.addEventListener('click', () => {
+                    saveModal.style.display = 'none';
+                });
+            });
+            
+            // 初始化标签切换
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    
+                    document.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    
+                    document.getElementById(tab.dataset.tab + 'Tab').classList.add('active');
+                });
+            });
+            
+            // 更新历史记录
+            updateHistoryList();
+            updateSavedSetsList();
+        }
+        
+        // 选择类别
+        function selectCategory(category) {
+            currentCategory = category;
+            
+            // 设置标题
+            if (category === 'food') categoryTitle.textContent = "吃什么？";
+            else if (category === 'activity') categoryTitle.textContent = "去哪玩？";
+            else if (category === 'movie') categoryTitle.textContent = "看什么？";
+            else categoryTitle.textContent = "你的选项";
+            
+            // 清空选项列表
+            optionsList.innerHTML = '';
+            
+            // 加载选项
+            if (category !== 'custom' && presetOptions[category]) {
+                currentOptions = [...presetOptions[category]];
+                currentOptions.forEach(option => {
+                    addOptionToList(option);
+                });
+            } else {
+                currentOptions = [];
+                addOption(); // 添加一个空选项
+            }
+            
+            // 显示选项容器
+            optionsContainer.style.display = 'block';
+            
+            // 隐藏结果卡片
+            resultCard.style.display = 'none';
+        }
+        
+        // 添加选项
+        function addOption() {
+            const option = '';
+            currentOptions.push(option);
+            addOptionToList(option);
+        }
+        
+        // 添加选项到列表
+        function addOptionToList(option) {
+            const li = document.createElement('li');
+            li.className = 'option-item';
+            
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = option;
+            input.placeholder = '输入选项';
+            input.addEventListener('input', (e) => {
+                const index = Array.from(optionsList.children).indexOf(li);
+                currentOptions[index] = e.target.value;
+            });
+            
+            const removeBtn = document.createElement('button');
+            removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+            removeBtn.addEventListener('click', () => {
+                const index = Array.from(optionsList.children).indexOf(li);
+                currentOptions.splice(index, 1);
+                li.remove();
+            });
+            
+            li.appendChild(input);
+            li.appendChild(removeBtn);
+            optionsList.appendChild(li);
+        }
+        
+        // 做决定
+        function makeDecision() {
+            // 过滤掉空选项
+            const validOptions = currentOptions.filter(opt => opt.trim() !== '');
+            
+            if (validOptions.length === 0) {
+                alert('请至少添加一个选项！');
+                return;
+            }
+            
+            // 添加摇动动画效果
+            resultElement.innerHTML = '<div class="loading"></div>';
+            resultCard.style.display = 'block';
+            
+            // 随机选择一个选项
+            setTimeout(() => {
+                const randomIndex = Math.floor(Math.random() * validOptions.length);
+                const decision = validOptions[randomIndex];
+                resultElement.textContent = decision;
+                resultElement.classList.add('shake-animation');
+                
+                // 添加五彩纸屑效果
+                createConfetti();
+                
+                // 移除动画类
+                setTimeout(() => {
+                    resultElement.classList.remove('shake-animation');
+                }, 500);
+            }, 800);
+            
+            // 滚动到结果区域
+            resultCard.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // 接受决定
+        function acceptDecision() {
+            const decision = resultElement.textContent;
+            
+            if (decision && decision !== '') {
+                // 添加到历史记录
+                const historyItem = {
+                    category: currentCategory,
+                    decision: decision,
+                    timestamp: new Date().getTime()
+                };
+                
+                decisionHistory.unshift(historyItem);
+                
+                // 只保留最近10条记录
+                if (decisionHistory.length > 10) {
+                    decisionHistory.pop();
+                }
+                
+                // 保存到本地存储
+                localStorage.setItem('decisionHistory', JSON.stringify(decisionHistory));
+                
+                // 更新历史列表
+                updateHistoryList();
+                
+                // 切换到历史标签
+                document.querySelectorAll('.tab').forEach(tab => {
+                    tab.classList.remove('active');
+                    if (tab.dataset.tab === 'history') {
+                        tab.classList.add('active');
+                    }
+                });
+                
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                document.getElementById('historyTab').classList.add('active');
+                
+                // 重置选项区域
+                optionsContainer.style.display = 'none';
+                resultCard.style.display = 'none';
+            }
+        }
+        
+        // 保存选项集
+        function saveOptionSet() {
+            const name = setNameInput.value.trim();
+            
+            if (name === '') {
+                alert('请输入选项集名称！');
+                return;
+            }
+            
+            // 过滤掉空选项
+            const validOptions = currentOptions.filter(opt => opt.trim() !== '');
+            
+            if (validOptions.length === 0) {
+                alert('请至少添加一个有效选项！');
+                return;
+            }
+            
+            // 保存选项集
+            savedSets[name] = {
+                category: currentCategory,
+                options: validOptions,
+                timestamp: new Date().getTime()
+            };
+            
+            // 保存到本地存储
+            localStorage.setItem('savedSets', JSON.stringify(savedSets));
+            
+            // 更新列表
+            updateSavedSetsList();
+            
+            // 关闭模态框
+            saveModal.style.display = 'none';
+            setNameInput.value = '';
+            
+            // 切换到保存标签
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.dataset.tab === 'saved') {
+                    tab.classList.add('active');
+                }
+            });
+            
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById('savedTab').classList.add('active');
+        }
+        
+        // 更新历史列表
+        function updateHistoryList() {
+            historyList.innerHTML = '';
+            
+            if (decisionHistory.length === 0) {
+                const li = document.createElement('li');
+                li.className = 'history-item';
+                li.innerHTML = '<div><div class="history-item-text">暂无历史记录</div></div>';
+                historyList.appendChild(li);
+                return;
+            }
+            
+            decisionHistory.forEach(item => {
+                const li = document.createElement('li');
+                li.className = 'history-item';
+                
+                let categoryText = '';
+                if (item.category === 'food') categoryText = '吃什么';
+                else if (item.category === 'activity') categoryText = '去哪玩';
+                else if (item.category === 'movie') categoryText = '看什么';
+                else categoryText = '自定义';
+                
+                li.innerHTML = `
+                    <div>
+                        <div class="history-item-text">${item.decision}</div>
+                        <div class="history-category">${categoryText}</div>
+                    </div>
+                `;
+                
+                historyList.appendChild(li);
+            });
+        }
+        
+        // 更新保存的选项集列表
+        function updateSavedSetsList() {
+            savedSetsList.innerHTML = '';
+            
+            const keys = Object.keys(savedSets);
+            
+            if (keys.length === 0) {
+                const li = document.createElement('li');
+                li.className = 'history-item';
+                li.innerHTML = '<div><div class="history-item-text">暂无保存的选项</div></div>';
+                savedSetsList.appendChild(li);
+                return;
+            }
+            
+            keys.forEach(key => {
+                const item = savedSets[key];
+                const li = document.createElement('li');
+                li.className = 'history-item';
+                
+                let categoryText = '';
+                if (item.category === 'food') categoryText = '吃什么';
+                else if (item.category === 'activity') categoryText = '去哪玩';
+                else if (item.category === 'movie') categoryText = '看什么';
+                else categoryText = '自定义';
+                
+                li.innerHTML = `
+                    <div>
+                        <div class="history-item-text">${key}</div>
+                        <div class="history-category">${categoryText} (${item.options.length}个选项)</div>
+                    </div>
+                    <div>
+                        <button class="btn-outline load-set-btn" data-name="${key}">加载</button>
+                    </div>
+                `;
+                
+                savedSetsList.appendChild(li);
+            });
+            
+            // 添加加载选项集事件
+            document.querySelectorAll('.load-set-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const name = e.target.dataset.name;
+                    loadSavedSet(name);
+                });
+            });
+        }
+        
+        // 加载保存的选项集
+        function loadSavedSet(name) {
+            const set = savedSets[name];
+            if (set) {
+                currentCategory = set.category;
+                currentOptions = [...set.options];
+                
+                // 设置标题
+                if (set.category === 'food') categoryTitle.textContent = "吃什么？";
+                else if (set.category === 'activity') categoryTitle.textContent = "去哪玩？";
+                else if (set.category === 'movie') categoryTitle.textContent = "看什么？";
+                else categoryTitle.textContent = "你的选项";
+                
+                // 清空选项列表
+                optionsList.innerHTML = '';
+                
+                // 加载选项
+                currentOptions.forEach(option => {
+                    addOptionToList(option);
+                });
+                
+                // 显示选项容器
+                optionsContainer.style.display = 'block';
+                
+                // 隐藏结果卡片
+                resultCard.style.display = 'none';
+            }
+        }
+        
+        // 创建五彩纸屑效果
+        function createConfetti() {
+            const container = document.body;
+            const confettiCount = 100;
+            const colors = ['#f94144', '#f3722c', '#f8961e', '#f9c74f', '#90be6d', '#43aa8b', '#4d908e', '#577590', '#277da1'];
+            
+            for (let i = 0; i < confettiCount; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                
+                const size = Math.random() * 10 + 5;
+                const colorIndex = Math.floor(Math.random() * colors.length);
+                
+                confetti.style.width = `${size}px`;
+                confetti.style.height = `${size}px`;
+                confetti.style.backgroundColor = colors[colorIndex];
+                
+                // 随机形状
+                const shapes = ['circle', 'square', 'rectangle'];
+                const shape = shapes[Math.floor(Math.random() * shapes.length)];
+                
+                if (shape === 'circle') {
+                    confetti.style.borderRadius = '50%';
+                } else if (shape === 'rectangle') {
+                    confetti.style.width = `${size * 1.5}px`;
+                }
+                
+                // 初始位置
+                const startX = window.innerWidth / 2 + (Math.random() - 0.5) * 100;
+                confetti.style.left = `${startX}px`;
+                confetti.style.top = `${resultElement.getBoundingClientRect().top - 20}px`;
+                
+                // 添加到文档
+                container.appendChild(confetti);
+                
+                // 设置动画
+                const angle = Math.random() * Math.PI * 2;
+                const velocity = Math.random() * 60 + 40;
+                const rotationSpeed = (Math.random() - 0.5) * 20;
+                const horizontalSpeed = Math.random() * 10 - 5;
+                
+                let posX = startX;
+                let posY = resultElement.getBoundingClientRect().top - 20;
+                let rotation = 0;
+                let opacity = 1;
+                
+                // 设置动画结束时间
+                const duration = Math.random() * 2000 + 2000;
+                const startTime = Date.now();
+                
+                function animate() {
+                    const elapsedTime = Date.now() - startTime;
+                    const progress = elapsedTime / duration;
+                    
+                    if (progress < 1) {
+                        posX += horizontalSpeed;
+                        posY += velocity * progress;
+                        rotation += rotationSpeed;
+                        opacity = 1 - progress;
+                        
+                        confetti.style.left = `${posX}px`;
+                        confetti.style.top = `${posY}px`;
+                        confetti.style.transform = `rotate(${rotation}deg)`;
+                        confetti.style.opacity = opacity;
+                        
+                        requestAnimationFrame(animate);
+                    } else {
+                        confetti.remove();
+                    }
+                }
+                
+                setTimeout(() => {
+                    confetti.style.opacity = '1';
+                    requestAnimationFrame(animate);
+                }, Math.random() * 500);
+            }
+        }
+        
+        // 初始化应用
+        init();
     </script>
 </body>
 </html>
