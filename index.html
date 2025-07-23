@@ -5,22 +5,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>选择助手</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #ff6b6b;
-            --secondary-color: #4ecdc4;
-            --text-color: #333;
-            --light-bg: #f7f7f7;
-            --card-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            --gradient: linear-gradient(135deg, var(--primary-color) 0%, #ff8e8e 100%);
+            --primary-color: #5b6cf9;
+            --primary-light: #7b89fa;
+            --primary-dark: #4a57e8;
+            --secondary-color: #00c2a8;
+            --secondary-light: #44d5c2;
+            --secondary-dark: #00a08a;
+            --text-color: #2c3e50;
+            --text-light: #6c7a89;
+            --light-bg: #f9faff;
+            --white: #ffffff;
+            --card-shadow: 0 10px 30px rgba(91, 108, 249, 0.1);
+            --gradient: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+            --gradient-secondary: linear-gradient(135deg, var(--secondary-color) 0%, var(--secondary-light) 100%);
+            --category-food: #ff7979;
+            --category-activity: #3dc1d3;
+            --category-movie: #f9ca24;
+            --category-custom: #9b59b6;
         }
         
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Helvetica Neue', Arial, sans-serif;
-            -webkit-tap-highlight-color: transparent; /* 禁止移动端点击时的高亮 */
+            font-family: 'Noto Sans SC', 'Helvetica Neue', Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
         
         body {
@@ -28,100 +42,214 @@
             color: var(--text-color);
             min-height: 100vh;
             padding: 20px;
-            overflow-x: hidden; /* 防止水平滚动 */
+            overflow-x: hidden;
+            line-height: 1.6;
         }
         
         .container {
-            max-width: 500px;
+            max-width: 550px;
             margin: 0 auto;
+            padding-bottom: 40px;
         }
         
         header {
             text-align: center;
             margin-bottom: 30px;
+            padding: 20px 0;
         }
         
         h1 {
             color: var(--primary-color);
-            font-size: 1.8rem;
+            font-size: 2rem;
             margin-bottom: 10px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
         }
         
         .subtitle {
-            color: #666;
-            font-size: 1rem;
+            color: var(--text-light);
+            font-size: 1.1rem;
             margin-bottom: 20px;
+            font-weight: 400;
         }
         
         .card {
-            background: white;
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 20px;
+            background: var(--white);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 25px;
             box-shadow: var(--card-shadow);
             animation: fadeIn 0.5s ease;
+            border: 1px solid rgba(91, 108, 249, 0.08);
         }
         
         .category-selector {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 20px;
+            gap: 15px;
+            margin-bottom: 25px;
         }
         
         .category-button {
             flex: 1;
-            min-width: calc(50% - 10px);
-            padding: 15px 10px;
+            min-width: calc(50% - 15px);
+            padding: 20px 15px;
             border: none;
-            border-radius: 10px;
-            background: var(--gradient);
-            color: white;
+            border-radius: 16px;
+            background: var(--white);
+            color: var(--text-color);
             font-size: 1rem;
-            font-weight: bold;
+            font-weight: 500;
             cursor: pointer;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            box-shadow: 0 3px 10px rgba(255, 107, 107, 0.2);
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(0, 0, 0, 0.04);
         }
         
-        .category-button:hover, .category-button:focus {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+        .category-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .category-button[data-category="food"]::before {
+            background: var(--category-food);
+        }
+        
+        .category-button[data-category="activity"]::before {
+            background: var(--category-activity);
+        }
+        
+        .category-button[data-category="movie"]::before {
+            background: var(--category-movie);
+        }
+        
+        .category-button[data-category="custom"]::before {
+            background: var(--category-custom);
+        }
+        
+        .category-button:hover::before, .category-button.active::before {
+            opacity: 1;
         }
         
         .category-button i {
-            font-size: 1.5rem;
-            margin-bottom: 8px;
+            font-size: 2rem;
+            margin-bottom: 12px;
+            transition: transform 0.3s ease;
+        }
+        
+        .category-button[data-category="food"] i {
+            color: var(--category-food);
+        }
+        
+        .category-button[data-category="activity"] i {
+            color: var(--category-activity);
+        }
+        
+        .category-button[data-category="movie"] i {
+            color: var(--category-movie);
+        }
+        
+        .category-button[data-category="custom"] i {
+            color: var(--category-custom);
+        }
+        
+        .category-button:hover, .category-button:focus, .category-button.active {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .category-button:hover i, .category-button.active i {
+            transform: scale(1.2);
         }
         
         .options-container {
-            margin-top: 20px;
+            margin-top: 25px;
+        }
+        
+        h3 {
+            font-size: 1.3rem;
+            color: var(--text-color);
+            margin-bottom: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+        
+        h3::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(to right, rgba(0,0,0,0.1), transparent);
+            margin-left: 15px;
         }
         
         .options-list {
             list-style: none;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+        
+        .options-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .options-list::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.03);
+            border-radius: 10px;
+        }
+        
+        .options-list::-webkit-scrollbar-thumb {
+            background: rgba(0,0,0,0.1);
+            border-radius: 10px;
+        }
+        
+        .options-list::-webkit-scrollbar-thumb:hover {
+            background: rgba(0,0,0,0.2);
         }
         
         .option-item {
             display: flex;
             align-items: center;
-            padding: 12px 15px;
-            background-color: var(--light-bg);
-            border-radius: 8px;
-            margin-bottom: 10px;
+            padding: 15px;
+            background-color: rgba(0,0,0,0.02);
+            border-radius: 12px;
+            margin-bottom: 12px;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+        }
+        
+        .option-item:hover {
+            background-color: rgba(0,0,0,0.03);
+            border-color: rgba(0,0,0,0.05);
         }
         
         .option-item input {
             flex: 1;
             border: none;
             background: transparent;
-            padding: 5px;
+            padding: 8px;
             font-size: 1rem;
+            color: var(--text-color);
+            border-radius: 4px;
+        }
+        
+        .option-item input:focus {
+            outline: none;
+            background-color: rgba(255,255,255,0.8);
         }
         
         .option-item button {
@@ -129,85 +257,240 @@
             border: none;
             color: #999;
             cursor: pointer;
-            padding: 5px;
+            padding: 8px;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+        }
+        
+        .option-item button:hover {
+            background-color: rgba(255,100,100,0.1);
+            color: #ff5252;
         }
         
         .action-buttons {
             display: flex;
-            gap: 10px;
-            margin-top: 20px;
+            gap: 12px;
+            margin-top: 25px;
         }
         
         .btn {
             flex: 1;
-            padding: 12px;
+            padding: 15px 20px;
             border: none;
-            border-radius: 8px;
+            border-radius: 12px;
             font-size: 1rem;
-            font-weight: bold;
+            font-weight: 500;
             cursor: pointer;
             transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .btn i {
+            margin-right: 8px;
+            font-size: 1.1rem;
         }
         
         .btn-primary {
-            background: var(--primary-color);
+            background: var(--gradient);
             color: white;
+            box-shadow: 0 5px 15px rgba(91, 108, 249, 0.3);
         }
         
         .btn-secondary {
-            background: var(--secondary-color);
+            background: var(--gradient-secondary);
             color: white;
+            box-shadow: 0 5px 15px rgba(0, 194, 168, 0.25);
         }
         
         .btn-outline {
             background: transparent;
-            border: 1px solid #ddd;
-            color: #666;
+            border: 1px solid rgba(0,0,0,0.1);
+            color: var(--text-light);
         }
         
         .btn:hover, .btn:focus {
-            opacity: 0.9;
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            filter: brightness(1.05);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .btn-outline:hover {
+            background-color: rgba(0,0,0,0.02);
+            border-color: rgba(0,0,0,0.15);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
         }
         
         .result-card {
             text-align: center;
             padding: 30px 20px;
             display: none;
+            position: relative;
         }
         
         .result-title {
             font-size: 1.2rem;
-            color: #666;
+            color: var(--text-light);
             margin-bottom: 15px;
+            font-weight: 400;
+        }
+        
+        .result-emoji {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            line-height: 1;
+            filter: drop-shadow(0 5px 15px rgba(0,0,0,0.1));
         }
         
         .result {
-            font-size: 2rem;
-            font-weight: bold;
+            font-size: 2.2rem;
+            font-weight: 600;
             color: var(--primary-color);
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             min-height: 60px;
             display: flex;
             align-items: center;
             justify-content: center;
         }
         
-        .result-emoji {
-            font-size: 3rem;
-            margin-bottom: 20px;
+        .wheel-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 20px 0 40px 0;
+            position: relative;
+        }
+        
+        .wheel-canvas {
+            width: 90vw;
+            max-width: 350px;
+            height: 90vw;
+            max-height: 350px;
+            background: transparent;
+            border-radius: 50%;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.05);
+            margin: 0 auto;
+            touch-action: none;
+            transition: filter 0.3s ease;
+        }
+        
+        .wheel-canvas:hover {
+            filter: brightness(1.03);
+        }
+        
+        .spin-btn {
+            margin-top: 25px;
+            padding: 16px 40px;
+            background: var(--gradient);
+            color: #fff;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(91, 108, 249, 0.25);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .spin-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(91, 108, 249, 0.35);
+        }
+        
+        .spin-btn:active {
+            background: var(--primary-dark);
+            transform: translateY(0);
+        }
+        
+        .spin-btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 10px;
+            height: 10px;
+            background: rgba(255,255,255,0.4);
+            opacity: 0;
+            border-radius: 100%;
+            transform: translate(-50%, -50%) scale(1);
+            transform-origin: 50% 50%;
+        }
+        
+        .spin-btn:focus:not(:active)::after {
+            animation: ripple 1s ease-out;
+        }
+        
+        @keyframes ripple {
+            0% {
+                transform: translate(-50%, -50%) scale(0);
+                opacity: 0.6;
+            }
+            70% {
+                transform: translate(-50%, -50%) scale(15);
+                opacity: 0.3;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(30);
+                opacity: 0;
+            }
+        }
+        
+        .wheel-result {
+            margin-top: 15px;
+            padding: 10px 0;
+            font-size: 1.4rem;
+            color: var(--primary-color);
+            font-weight: bold;
+            min-height: 2em;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .wheel-result:not(:empty) {
+            background-color: rgba(255,255,255,0.7);
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            padding: 10px 20px;
+        }
+        
+        #customOptionBtn {
+            display: none;
+            position: absolute;
+            top: -15px;
+            right: -5px;
+            z-index: 3;
+            padding: 8px 15px;
+            font-size: 0.9rem;
+            background: var(--white);
+            color: var(--text-color);
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            transition: all 0.2s;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        #customOptionBtn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
         }
         
         .shake-animation {
-            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+            animation: shake 0.6s cubic-bezier(.36,.07,.19,.97) both;
         }
         
         @keyframes shake {
             10%, 90% { transform: translate3d(-1px, 0, 0); }
             20%, 80% { transform: translate3d(2px, 0, 0); }
-            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
-            40%, 60% { transform: translate3d(4px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-3px, 0, 0); }
+            40%, 60% { transform: translate3d(3px, 0, 0); }
         }
         
         @keyframes fadeIn {
@@ -228,7 +511,7 @@
             display: inline-block;
             width: 30px;
             height: 30px;
-            border: 3px solid rgba(255,107,107,0.3);
+            border: 3px solid rgba(91, 108, 249, 0.2);
             border-radius: 50%;
             border-top-color: var(--primary-color);
             animation: spin 1s ease-in-out infinite;
@@ -236,6 +519,52 @@
         
         @keyframes spin {
             to { transform: rotate(360deg); }
+        }
+        
+        .tab-container {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            color: var(--text-light);
+            transition: all 0.3s ease;
+            font-weight: 500;
+            position: relative;
+        }
+        
+        .tab::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--primary-color);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+        
+        .tab.active {
+            color: var(--primary-color);
+        }
+        
+        .tab.active::after {
+            transform: scaleX(1);
+        }
+        
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .tab-content.active {
+            display: block;
         }
         
         .history-list {
@@ -247,18 +576,20 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 12px;
-            background-color: var(--light-bg);
-            border-radius: 8px;
-            margin-bottom: 10px;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            padding: 15px;
+            background-color: var(--white);
+            border-radius: 12px;
+            margin-bottom: 12px;
+            transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid rgba(0,0,0,0.02);
         }
         
         .history-item:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.08);
         }
         
         .history-item::before {
@@ -267,66 +598,110 @@
             left: 0;
             top: 0;
             height: 100%;
-            width: 4px;
+            width: 3px;
+            opacity: 0.8;
         }
         
         .history-item.food::before {
-            background-color: #ff6b6b;
+            background-color: var(--category-food);
         }
         
         .history-item.activity::before {
-            background-color: #4ecdc4;
+            background-color: var(--category-activity);
         }
         
         .history-item.movie::before {
-            background-color: #f9c74f;
+            background-color: var(--category-movie);
         }
         
         .history-item.custom::before {
-            background-color: #8675a9;
+            background-color: var(--category-custom);
+        }
+        
+        .history-item-main {
+            width: 100%;
+        }
+        
+        .history-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
         }
         
         .history-item-text {
             font-weight: 500;
-            margin-bottom: 3px;
             font-size: 1.05rem;
+            color: var(--text-color);
         }
         
-        .history-category {
-            color: #666;
-            font-size: 0.8rem;
+        .history-item-category {
+            color: var(--text-light);
+            font-size: 0.85rem;
             display: flex;
             align-items: center;
+            background-color: rgba(0,0,0,0.03);
+            padding: 4px 10px;
+            border-radius: 30px;
+            white-space: nowrap;
         }
         
-        .history-category i {
+        .history-item-category i {
             margin-right: 5px;
             font-size: 0.9rem;
         }
         
+        .history-item.food .history-item-category i {
+            color: var(--category-food);
+        }
+        
+        .history-item.activity .history-item-category i {
+            color: var(--category-activity);
+        }
+        
+        .history-item.movie .history-item-category i {
+            color: var(--category-movie);
+        }
+        
+        .history-item.custom .history-item-category i {
+            color: var(--category-custom);
+        }
+        
+        .history-item-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
         .history-time {
-            color: #999;
-            font-size: 0.75rem;
-            margin-top: 5px;
+            color: var(--text-light);
+            font-size: 0.8rem;
         }
         
         .history-actions {
             display: flex;
-            gap: 8px;
+            gap: 10px;
         }
         
         .history-action-btn {
             background: transparent;
             border: none;
-            padding: 5px;
-            color: #888;
+            padding: 6px;
+            color: var(--text-light);
             cursor: pointer;
-            transition: color 0.2s ease;
+            transition: all 0.2s ease;
             font-size: 0.9rem;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .history-action-btn:hover {
             color: var(--primary-color);
+            background-color: rgba(91, 108, 249, 0.08);
         }
         
         .modal {
@@ -336,250 +711,161 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0,0,0,0.5);
+            background-color: rgba(0,0,0,0.6);
+            backdrop-filter: blur(3px);
             align-items: center;
             justify-content: center;
             z-index: 1000;
         }
         
         .modal-content {
-            background-color: white;
-            padding: 20px;
-            border-radius: 15px;
+            background-color: var(--white);
+            padding: 25px;
+            border-radius: 20px;
             width: 90%;
-            max-width: 400px;
-            box-shadow: var(--card-shadow);
+            max-width: 450px;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.15);
+            transform: scale(0.95);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .modal.show .modal-content {
+            transform: scale(1);
+            opacity: 1;
         }
         
         .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .modal-header h3 {
+            margin-bottom: 0;
         }
         
         .modal-close {
             background: transparent;
             border: none;
-            font-size: 1.2rem;
+            font-size: 1.5rem;
             cursor: pointer;
-        }
-        
-        .tab-container {
+            color: var(--text-light);
+            transition: all 0.2s ease;
+            width: 36px;
+            height: 36px;
             display: flex;
-            margin-bottom: 20px;
-            border-bottom: 1px solid #eee;
-        }
-        
-        .tab {
-            flex: 1;
-            padding: 10px;
-            text-align: center;
-            cursor: pointer;
-            color: #666;
-            transition: all 0.3s ease;
-        }
-        
-        .tab.active {
-            color: var(--primary-color);
-            border-bottom: 2px solid var(--primary-color);
-        }
-        
-        .tab-content {
-            display: none;
-        }
-        
-        .tab-content.active {
-            display: block;
-            animation: fadeIn 0.3s ease;
-        }
-        .wheel-container {
-            display: flex;
-            flex-direction: column;
             align-items: center;
-            margin: 20px 0;
-            position: relative; /* 添加相对定位 */
-        }
-        .wheel-canvas {
-            width: 90vw;
-            max-width: 350px;
-            height: 90vw;
-            max-height: 350px;
-            background: transparent;
+            justify-content: center;
             border-radius: 50%;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-            margin: 0 auto;
-            touch-action: none; /* 阻止触摸事件引起的滚动 */
         }
-        .pointer {
-            width: 0;
-            height: 0;
-            border-left: 18px solid transparent;
-            border-right: 18px solid transparent;
-            border-bottom: 32px solid #ff6b6b;
-            margin-bottom: -10px;
-            position: relative;
-            z-index: 2;
-        }
-        .spin-btn {
-            margin-top: 18px;
-            padding: 12px 32px;
-            background: var(--primary-color);
-            color: #fff;
-            border: none;
-            border-radius: 30px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 2px 8px rgba(255,107,107,0.12);
-            transition: all 0.2s;
-            position: relative;
-            overflow: hidden;
-        }
-        .spin-btn:active {
-            background: #e55a5a;
-            transform: scale(0.98);
-        }
-        .spin-btn:after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 5px;
-            height: 5px;
-            background: rgba(255, 255, 255, 0.5);
-            opacity: 0;
-            border-radius: 100%;
-            transform: scale(1, 1) translate(-50%);
-            transform-origin: 50% 50%;
-        }
-        .spin-btn:focus:not(:active)::after {
-            animation: ripple 1s ease-out;
-        }
-        @keyframes ripple {
-            0% {
-                transform: scale(0, 0);
-                opacity: 0.5;
-            }
-            20% {
-                transform: scale(25, 25);
-                opacity: 0.3;
-            }
-            100% {
-                opacity: 0;
-                transform: scale(40, 40);
-            }
-        }
-        .wheel-result {
-            margin-top: 20px;
-            font-size: 1.4rem;
+        
+        .modal-close:hover {
+            background-color: rgba(0,0,0,0.05);
             color: var(--primary-color);
-            font-weight: bold;
-            min-height: 2em;
-            text-align: center;
-        }
-        
-        /* 移动端优化 */
-        @media (max-width: 480px) {
-            .container {
-                padding: 0;
-            }
-            .card {
-                border-radius: 12px;
-                padding: 15px;
-                margin-bottom: 15px;
-            }
-            .category-button {
-                min-width: calc(50% - 5px);
-                padding: 12px 8px;
-            }
-            .btn {
-                padding: 10px;
-            }
-            .result {
-                font-size: 1.5rem;
-            }
-            .wheel-canvas {
-                width: 85vw;
-                height: 85vw;
-            }
-            .option-item {
-                padding: 10px;
-            }
-        }
-        
-        .category-button.active {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 15px rgba(255, 107, 107, 0.4);
-        }
-        
-        #customOptionBtn {
-            display: none;
-            position: absolute;
-            top: -10px;
-            right: 0;
-            z-index: 3;
-            padding: 8px 12px;
-            font-size: 0.9rem;
-            background: var(--secondary-color);
-            color: white;
-            border: none;
-            border-radius: 20px;
-            cursor: pointer;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            transition: all 0.2s;
-        }
-        
-        #customOptionBtn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
-        
-        /* 添加转盘样式增强 */
-        .wheel-container::after {
-            content: '';
-            position: absolute;
-            top: 6px;
-            left: calc(50% - 3px);
-            width: 6px;
-            height: 15px;
-            background: #ff6b6b;
-            border-radius: 6px;
-            z-index: 5;
-        }
-
-        /* 选项列表样式改进 */
-        .options-list {
-            max-height: 300px;
-            overflow-y: auto;
-            padding-right: 5px;
-        }
-        
-        .options-list::-webkit-scrollbar {
-            width: 6px;
-        }
-        
-        .options-list::-webkit-scrollbar-track {
-            background: #f0f0f0;
-            border-radius: 3px;
-        }
-        
-        .options-list::-webkit-scrollbar-thumb {
-            background: #ccc;
-            border-radius: 3px;
-        }
-        
-        .options-list::-webkit-scrollbar-thumb:hover {
-            background: #aaa;
         }
         
         .option-empty-placeholder {
             text-align: center;
             padding: 30px 0;
-            color: #999;
+            color: var(--text-light);
+        }
+        
+        /* 移动端优化 */
+        @media (max-width: 480px) {
+            .container {
+                padding: 0 5px 30px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .card {
+                border-radius: 18px;
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+            
+            .category-button {
+                min-width: calc(50% - 8px);
+                padding: 15px 10px;
+                border-radius: 14px;
+            }
+            
+            .btn {
+                padding: 12px;
+                border-radius: 10px;
+            }
+            
+            .result {
+                font-size: 1.8rem;
+            }
+            
+            .wheel-canvas {
+                width: 85vw;
+                height: 85vw;
+            }
+            
+            .option-item {
+                padding: 12px;
+            }
+            
+            .tab {
+                padding: 12px;
+            }
+            
+            .history-item {
+                padding: 12px;
+            }
+            
+            .modal-content {
+                padding: 20px;
+            }
+        }
+        
+        /* 暗黑主题支持 */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --light-bg: #121212;
+                --white: #1e1e1e;
+                --text-color: #e0e0e0;
+                --text-light: #9e9e9e;
+                --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+            }
+            
+            .option-item {
+                background-color: rgba(255,255,255,0.05);
+            }
+            
+            .option-item:hover {
+                background-color: rgba(255,255,255,0.08);
+            }
+            
+            .btn-outline {
+                border-color: rgba(255,255,255,0.1);
+            }
+            
+            .btn-outline:hover {
+                background-color: rgba(255,255,255,0.05);
+            }
+            
+            .option-item input:focus {
+                background-color: rgba(255,255,255,0.1);
+            }
+            
+            .wheel-result:not(:empty) {
+                background-color: rgba(255,255,255,0.1);
+            }
+            
+            .history-item-category {
+                background-color: rgba(255,255,255,0.08);
+            }
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <header>
@@ -602,7 +888,7 @@
                     看什么
                 </button>
                 <button class="category-button" data-category="custom">
-                    <i class="fas fa-plus"></i>
+                    <i class="fas fa-sliders"></i>
                     自定义
                 </button>
             </div>
@@ -610,7 +896,6 @@
             <div id="optionsContainer" class="options-container" style="display: none;">
                 <h3 id="categoryTitle">选项</h3>
                 <div id="wheelArea" class="wheel-container" style="display:none;">
-                    <div class="pointer"></div>
                     <canvas id="wheelCanvas" class="wheel-canvas"></canvas>
                     <button id="customOptionBtn" class="btn-outline">
                         <i class="fas fa-cog"></i> 管理选项
@@ -627,8 +912,12 @@
                     </button>
                 </div>
                 <div class="action-buttons">
-                    <button id="decideBtn" class="btn btn-primary">开始决定</button>
-                    <button id="saveBtn" class="btn btn-secondary">保存选项</button>
+                    <button id="decideBtn" class="btn btn-primary">
+                        <i class="fas fa-random"></i> 开始决定
+                    </button>
+                    <button id="saveBtn" class="btn btn-secondary">
+                        <i class="fas fa-save"></i> 保存选项
+                    </button>
                 </div>
             </div>
         </div>
@@ -638,8 +927,12 @@
             <div class="result-emoji">🎉</div>
             <div id="result" class="result"></div>
             <div class="action-buttons">
-                <button id="againBtn" class="btn btn-outline">再决定一次</button>
-                <button id="acceptBtn" class="btn btn-primary">就它了！</button>
+                <button id="againBtn" class="btn btn-outline">
+                    <i class="fas fa-redo-alt"></i> 再决定一次
+                </button>
+                <button id="acceptBtn" class="btn btn-primary">
+                    <i class="fas fa-check"></i> 就它了！
+                </button>
             </div>
         </div>
         
@@ -686,7 +979,9 @@
                     <input type="text" id="setNameInput" placeholder="输入选项集名称" />
                 </div>
                 <div class="action-buttons">
-                    <button id="confirmSaveBtn" class="btn btn-primary">保存</button>
+                    <button id="confirmSaveBtn" class="btn btn-primary">
+                        <i class="fas fa-save"></i> 保存
+                    </button>
                 </div>
             </div>
         </div>
@@ -757,7 +1052,7 @@
             
             // 初始化保存按钮
             saveBtn.addEventListener('click', () => {
-                saveModal.style.display = 'flex';
+                showModal('saveModal');
             });
             
             // 初始化确认保存按钮
@@ -769,14 +1064,14 @@
             // 初始化模态框关闭按钮
             document.querySelectorAll('.modal-close').forEach(button => {
                 button.addEventListener('click', () => {
-                    saveModal.style.display = 'none';
+                    hideModal('saveModal');
                 });
             });
             
             // 点击模态框外部区域关闭
             window.addEventListener('click', (e) => {
                 if (e.target === saveModal) {
-                    saveModal.style.display = 'none';
+                    hideModal('saveModal');
                 }
             });
             
@@ -1055,7 +1350,7 @@
             updateSavedSetsList();
             
             // 关闭模态框
-            saveModal.style.display = 'none';
+            hideModal('saveModal');
             setNameInput.value = '';
             
             // 切换到保存标签
@@ -1107,23 +1402,30 @@
                     categoryIcon = '<i class="fas fa-plus"></i>';
                 }
                 
-                // 格式化时间
+                // 格式化精确时间
                 const date = new Date(item.timestamp);
+                const preciseTimeString = `${date.getFullYear()}-${padZero(date.getMonth() + 1)}-${padZero(date.getDate())} ${padZero(date.getHours())}:${padZero(date.getMinutes())}:${padZero(date.getSeconds())}`;
+                
+                // 显示相对时间（如"5分钟前"）
                 const timeString = formatTime(date);
                 
                 li.innerHTML = `
-                    <div>
-                        <div class="history-item-text">${item.decision}</div>
-                        <div class="history-category">${categoryIcon} ${categoryText}</div>
-                        <div class="history-time">${timeString}</div>
-                    </div>
-                    <div class="history-actions">
-                        <button class="history-action-btn reuse-btn" title="再次使用此选项" data-index="${decisionHistory.indexOf(item)}">
-                            <i class="fas fa-redo-alt"></i>
-                        </button>
-                        <button class="history-action-btn delete-btn" title="删除记录" data-index="${decisionHistory.indexOf(item)}">
-                            <i class="fas fa-trash-alt"></i>
-                        </button>
+                    <div class="history-item-main">
+                        <div class="history-item-header">
+                            <div class="history-item-text">${item.decision}</div>
+                            <div class="history-item-category">${categoryIcon} ${categoryText}</div>
+                        </div>
+                        <div class="history-item-footer">
+                            <div class="history-time" title="${preciseTimeString}">${timeString}</div>
+                            <div class="history-actions">
+                                <button class="history-action-btn reuse-btn" title="再次使用此选项" data-index="${decisionHistory.indexOf(item)}">
+                                    <i class="fas fa-redo-alt"></i>
+                                </button>
+                                <button class="history-action-btn delete-btn" title="删除记录" data-index="${decisionHistory.indexOf(item)}">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 `;
                 
@@ -1395,29 +1697,96 @@
             
             ctx.clearRect(0, 0, wheelCanvas.width, wheelCanvas.height);
             
+            // 更现代化的配色方案
             const colors = [
-                '#ff6b6b', '#4ecdc4', '#f9c74f', '#f8961e', '#43aa8b', '#577590', '#b5838d', '#6d6875', '#90be6d', '#277da1', '#f3722c', '#e07a5f'
+                '#5D8CFF', // 蓝色
+                '#FF9085', // 粉红色
+                '#74E0C0', // 薄荷绿
+                '#FFC857', // 琥珀黄
+                '#6A67CE', // 紫色
+                '#4ECDC4', // 青绿色
+                '#FF6B6B', // 珊瑚红
+                '#98D4BB', // 薄荷绿2
+                '#7986CB', // 靛蓝色
+                '#80DEEA', // 天蓝色
+                '#16A596', // 深绿色
+                '#7C77B9'  // 淡紫色
             ];
+            
             const anglePer = 2 * Math.PI / options.length;
             
-            // 绘制外圆
+            // 绘制轮盘背景和边框
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(center, center, radius + 5, 0, 2 * Math.PI);
+            
+            // 添加渐变背景
+            const bgGradient = ctx.createLinearGradient(0, 0, size, size);
+            bgGradient.addColorStop(0, 'rgba(255, 255, 255, 0.2)');
+            bgGradient.addColorStop(1, 'rgba(230, 230, 230, 0.2)');
+            
+            ctx.fillStyle = bgGradient;
+            ctx.fill();
+            ctx.restore();
+            
+            // 外圆环
             ctx.save();
             ctx.beginPath();
             ctx.arc(center, center, radius, 0, 2 * Math.PI);
+            const rimGradient = ctx.createLinearGradient(0, 0, size, size);
+            rimGradient.addColorStop(0, 'rgba(255, 255, 255, 0.8)');
+            rimGradient.addColorStop(1, 'rgba(200, 200, 200, 0.8)');
+            ctx.strokeStyle = rimGradient;
             ctx.lineWidth = 2;
-            ctx.strokeStyle = '#ddd';
             ctx.stroke();
             ctx.restore();
             
             // 绘制每个扇形
             for (let i = 0; i < options.length; i++) {
                 ctx.save();
+                
+                // 开始绘制扇形路径
                 ctx.beginPath();
                 ctx.moveTo(center, center);
                 ctx.arc(center, center, radius, i * anglePer + wheelAngle, (i + 1) * anglePer + wheelAngle);
                 ctx.closePath();
-                ctx.fillStyle = colors[i % colors.length];
+                
+                // 创建径向渐变 - 从扇形中心到边缘
+                const startAngle = i * anglePer + wheelAngle;
+                const midAngle = startAngle + anglePer / 2;
+                
+                // 计算扇形中心点偏移位置 (靠近外边缘)
+                const gradientX = center + Math.cos(midAngle) * (radius * 0.5);
+                const gradientY = center + Math.sin(midAngle) * (radius * 0.5);
+                
+                const mainColor = colors[i % colors.length];
+                
+                // 创建从深到浅的渐变
+                const gradient = ctx.createRadialGradient(
+                    gradientX, gradientY, 0,
+                    gradientX, gradientY, radius
+                );
+                
+                // 计算亮色和暗色版本
+                const lighterColor = lightenColor(mainColor, 15);
+                const darkerColor = darkenColor(mainColor, 15);
+                
+                gradient.addColorStop(0, lighterColor);
+                gradient.addColorStop(0.8, mainColor);
+                gradient.addColorStop(1, darkerColor);
+                
+                ctx.fillStyle = gradient;
                 ctx.fill();
+                
+                // 绘制高光效果
+                ctx.beginPath();
+                ctx.moveTo(center, center);
+                ctx.arc(center, center, radius, i * anglePer + wheelAngle, (i + 1) * anglePer + wheelAngle);
+                ctx.closePath();
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+                
                 ctx.restore();
                 
                 // 绘制分隔线
@@ -1428,8 +1797,8 @@
                     center + Math.cos(i * anglePer + wheelAngle) * radius,
                     center + Math.sin(i * anglePer + wheelAngle) * radius
                 );
-                ctx.lineWidth = 1;
-                ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+                ctx.lineWidth = 1.5;
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
                 ctx.stroke();
                 ctx.restore();
                 
@@ -1437,25 +1806,32 @@
                 ctx.save();
                 ctx.translate(center, center);
                 ctx.rotate(i * anglePer + anglePer / 2 + wheelAngle);
-                ctx.textAlign = 'right';
                 
                 // 动态调整字体大小
-                const fontSize = Math.max(12, Math.min(16, radius / 10));
-                ctx.font = `bold ${fontSize}px Arial`;
+                const fontSize = Math.max(14, Math.min(18, radius / 8));
+                ctx.font = `500 ${fontSize}px 'Noto Sans SC', sans-serif`;
                 
-                ctx.fillStyle = '#fff';
-                ctx.shadowColor = 'rgba(0,0,0,0.15)';
+                // 添加文字阴影
+                ctx.shadowColor = 'rgba(0,0,0,0.3)';
                 ctx.shadowBlur = 2;
+                ctx.shadowOffsetX = 1;
+                ctx.shadowOffsetY = 1;
+                
+                // 动态计算文字位置，使更长的文本更靠近中心
+                const textDistance = radius * 0.75; 
+                ctx.textAlign = 'right';
+                ctx.textBaseline = 'middle';
+                ctx.fillStyle = 'white';
                 
                 // 文本长度检查和截断
                 let text = options[i];
-                const maxTextWidth = radius * 0.75;
+                const maxTextWidth = radius * 0.65;
                 
                 if (ctx.measureText(text).width > maxTextWidth) {
                     // 尝试截断文本并添加省略号
                     let truncated = false;
                     for (let j = text.length; j > 0; j--) {
-                        const truncatedText = text.substring(0, j) + '...';
+                        const truncatedText = text.substring(0, j) + '…';
                         if (ctx.measureText(truncatedText).width <= maxTextWidth) {
                             text = truncatedText;
                             truncated = true;
@@ -1465,24 +1841,113 @@
                     
                     // 如果无法合理截断，则使用更小的字体
                     if (!truncated) {
-                        ctx.font = `bold ${fontSize * 0.75}px Arial`;
+                        ctx.font = `500 ${fontSize * 0.8}px 'Noto Sans SC', sans-serif`;
                     }
                 }
                 
-                ctx.fillText(text, radius - 18, 8);
+                ctx.fillText(text, textDistance, 0);
                 ctx.restore();
             }
             
-            // 绘制中心圆
+            // 绘制中心圆盘
+            const hubRadius = radius * 0.18;
             ctx.save();
+            
+            // 中心圆的外层装饰环
             ctx.beginPath();
-            ctx.arc(center, center, radius * 0.1, 0, 2 * Math.PI);
-            ctx.fillStyle = 'white';
+            ctx.arc(center, center, hubRadius + 3, 0, 2 * Math.PI);
+            const hubRingGradient = ctx.createLinearGradient(
+                center - hubRadius - 3,
+                center - hubRadius - 3,
+                center + hubRadius + 3,
+                center + hubRadius + 3
+            );
+            hubRingGradient.addColorStop(0, '#f0f0f0');
+            hubRingGradient.addColorStop(1, '#d0d0d0');
+            ctx.fillStyle = hubRingGradient;
             ctx.fill();
-            ctx.lineWidth = 2;
-            ctx.strokeStyle = '#ddd';
+            
+            // 中心圆
+            ctx.beginPath();
+            ctx.arc(center, center, hubRadius, 0, 2 * Math.PI);
+            const hubGradient = ctx.createLinearGradient(
+                center - hubRadius,
+                center - hubRadius,
+                center + hubRadius,
+                center + hubRadius
+            );
+            hubGradient.addColorStop(0, '#ffffff');
+            hubGradient.addColorStop(1, '#f5f5f5');
+            ctx.fillStyle = hubGradient;
+            ctx.fill();
+            
+            ctx.lineWidth = 1;
+            ctx.strokeStyle = '#e0e0e0';
             ctx.stroke();
+
+            // 箭头位置修改到底部，指向6点钟位置
+            const pointerSize = hubRadius * 0.9;
+            ctx.beginPath();
+            
+            // 创建一个更精美的箭头形状，指向下方（6点钟位置）
+            const arrowX = center;
+            const arrowBaseY = center + hubRadius;
+            
+            // 箭头形状 - 更平滑的三角形
+            ctx.moveTo(arrowX, arrowBaseY + pointerSize); // 尖端
+            ctx.lineTo(arrowX - pointerSize*0.6, arrowBaseY + pointerSize*0.2); // 左侧
+            ctx.quadraticCurveTo(arrowX, arrowBaseY + pointerSize*0.5, arrowX + pointerSize*0.6, arrowBaseY + pointerSize*0.2); // 圆弧底边
+            ctx.closePath();
+            
+            // 创建渐变填充色
+            const arrowGradient = ctx.createLinearGradient(
+                arrowX, 
+                arrowBaseY,
+                arrowX,
+                arrowBaseY + pointerSize
+            );
+            arrowGradient.addColorStop(0, '#ff5252');
+            arrowGradient.addColorStop(1, '#ff1a1a');
+            ctx.fillStyle = arrowGradient;
+            
+            // 添加阴影效果
+            ctx.shadowColor = 'rgba(0,0,0,0.3)';
+            ctx.shadowBlur = 4;
+            ctx.shadowOffsetY = 2;
+            ctx.fill();
+            
+            // 细微的白色边框
+            ctx.strokeStyle = 'rgba(255,255,255,0.8)';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+            
             ctx.restore();
+        }
+        
+        // 辅助函数 - 调亮颜色
+        function lightenColor(color, percent) {
+            const num = parseInt(color.replace('#', ''), 16),
+                  amt = Math.round(2.55 * percent),
+                  R = (num >> 16) + amt,
+                  G = (num >> 8 & 0x00FF) + amt,
+                  B = (num & 0x0000FF) + amt;
+            return '#' + (0x1000000 + (R < 255 ? R < 0 ? 0 : R : 255) * 0x10000 + 
+                         (G < 255 ? G < 0 ? 0 : G : 255) * 0x100 + 
+                         (B < 255 ? B < 0 ? 0 : B : 255))
+                         .toString(16).slice(1);
+        }
+        
+        // 辅助函数 - 调暗颜色
+        function darkenColor(color, percent) {
+            const num = parseInt(color.replace('#', ''), 16),
+                  amt = Math.round(2.55 * percent),
+                  R = (num >> 16) - amt,
+                  G = (num >> 8 & 0x00FF) - amt,
+                  B = (num & 0x0000FF) - amt;
+            return '#' + (0x1000000 + (R > 0 ? R : 0) * 0x10000 + 
+                         (G > 0 ? G : 0) * 0x100 + 
+                         (B > 0 ? B : 0))
+                         .toString(16).slice(1);
         }
         
         function spinWheel() {
@@ -1523,9 +1988,10 @@
             let spins = Math.floor(Math.random() * 3) + 5; // 5~7圈
             let finalIndex = Math.floor(Math.random() * options.length);
             let anglePer = 2 * Math.PI / options.length;
-            let finalAngle = (3 * Math.PI / 2) - (finalIndex * anglePer + anglePer / 2); // 指针在上方
+            // 调整为6点钟位置对应选中扇区
+            let finalAngle = (Math.PI / 2) - (finalIndex * anglePer + anglePer / 2);
             let totalAngle = spins * 2 * Math.PI + finalAngle;
-            let duration = 3500;
+            let duration = 4000; // 稍长一点的旋转时间
             let start = null;
             
             function animateWheel(ts) {
