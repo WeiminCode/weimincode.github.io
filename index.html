@@ -391,6 +391,52 @@
             display: block;
             animation: fadeIn 0.3s ease;
         }
+        .wheel-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 20px 0;
+        }
+        .wheel-canvas {
+            width: 90vw;
+            max-width: 350px;
+            height: 90vw;
+            max-height: 350px;
+            background: transparent;
+            border-radius: 50%;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+        }
+        .pointer {
+            width: 0;
+            height: 0;
+            border-left: 18px solid transparent;
+            border-right: 18px solid transparent;
+            border-bottom: 32px solid #ff6b6b;
+            margin-bottom: -10px;
+        }
+        .spin-btn {
+            margin-top: 18px;
+            padding: 12px 32px;
+            background: var(--primary-color);
+            color: #fff;
+            border: none;
+            border-radius: 30px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(255,107,107,0.12);
+            transition: background 0.2s;
+        }
+        .spin-btn:active {
+            background: #e55a5a;
+        }
+        .wheel-result {
+            margin-top: 20px;
+            font-size: 1.4rem;
+            color: var(--primary-color);
+            font-weight: bold;
+            min-height: 2em;
+        }
     </style>
 </head>
 <body>
@@ -422,16 +468,20 @@
             
             <div id="optionsContainer" class="options-container" style="display: none;">
                 <h3 id="categoryTitle">选项</h3>
+                <div id="wheelArea" class="wheel-container" style="display:none;">
+                    <div class="pointer"></div>
+                    <canvas id="wheelCanvas" class="wheel-canvas"></canvas>
+                    <button id="spinBtn" class="spin-btn">开始转动</button>
+                    <div id="wheelResult" class="wheel-result"></div>
+                </div>
                 <ul id="optionsList" class="options-list">
                     <!-- 选项会动态添加在这里 -->
                 </ul>
-                
                 <div class="action-buttons">
                     <button id="addOptionBtn" class="btn btn-outline">
                         <i class="fas fa-plus"></i> 添加选项
                     </button>
                 </div>
-                
                 <div class="action-buttons">
                     <button id="decideBtn" class="btn btn-primary">开始决定</button>
                     <button id="saveBtn" class="btn btn-secondary">保存选项</button>
@@ -614,6 +664,21 @@
             
             // 隐藏结果卡片
             resultCard.style.display = 'none';
+
+            // 转盘模式：看什么/去哪玩/吃什么都用转盘，只有自定义用列表
+            if (category === 'custom') {
+                document.getElementById('wheelArea').style.display = 'none';
+                optionsList.style.display = 'block';
+                addOptionBtn.style.display = 'inline-block';
+                decideBtn.style.display = 'inline-block';
+            } else {
+                document.getElementById('wheelArea').style.display = 'flex';
+                optionsList.style.display = 'none';
+                addOptionBtn.style.display = 'none';
+                decideBtn.style.display = 'none';
+                drawWheel();
+                document.getElementById('wheelResult').textContent = '';
+            }
         }
         
         // 添加选项
@@ -1046,6 +1111,93 @@
                 }, Math.random() * 500);
             }
         }
+        
+        // ---------- 转盘相关 ----------
+        const wheelCanvas = document.getElementById('wheelCanvas');
+        const spinBtn = document.getElementById('spinBtn');
+        const wheelResult = document.getElementById('wheelResult');
+        let spinning = false;
+        let wheelAngle = 0;
+        let wheelTimeout;
+        
+        function drawWheel() {
+            const options = currentOptions.filter(opt => opt.trim() !== '');
+            const ctx = wheelCanvas.getContext('2d');
+            const size = Math.min(wheelCanvas.width, wheelCanvas.height);
+            const center = size / 2;
+            const radius = center - 10;
+            wheelCanvas.width = wheelCanvas.offsetWidth;
+            wheelCanvas.height = wheelCanvas.offsetHeight;
+            ctx.clearRect(0, 0, wheelCanvas.width, wheelCanvas.height);
+            if (options.length === 0) return;
+            const colors = [
+                '#ff6b6b', '#4ecdc4', '#f9c74f', '#f8961e', '#43aa8b', '#577590', '#b5838d', '#6d6875', '#90be6d', '#277da1', '#f3722c', '#e07a5f'
+            ];
+            const anglePer = 2 * Math.PI / options.length;
+            for (let i = 0; i < options.length; i++) {
+                ctx.save();
+                ctx.beginPath();
+                ctx.moveTo(center, center);
+                ctx.arc(center, center, radius, i * anglePer + wheelAngle, (i + 1) * anglePer + wheelAngle);
+                ctx.closePath();
+                ctx.fillStyle = colors[i % colors.length];
+                ctx.fill();
+                ctx.restore();
+                // 文字
+                ctx.save();
+                ctx.translate(center, center);
+                ctx.rotate(i * anglePer + anglePer / 2 + wheelAngle);
+                ctx.textAlign = 'right';
+                ctx.font = 'bold 1rem Arial';
+                ctx.fillStyle = '#fff';
+                ctx.shadowColor = 'rgba(0,0,0,0.15)';
+                ctx.shadowBlur = 2;
+                ctx.fillText(options[i], radius - 18, 8);
+                ctx.restore();
+            }
+        }
+        
+        function spinWheel() {
+            if (spinning) return;
+            const options = currentOptions.filter(opt => opt.trim() !== '');
+            if (options.length === 0) {
+                wheelResult.textContent = '请先添加选项';
+                return;
+            }
+            spinning = true;
+            wheelResult.textContent = '';
+            let spins = Math.floor(Math.random() * 3) + 5; // 5~7圈
+            let finalIndex = Math.floor(Math.random() * options.length);
+            let anglePer = 2 * Math.PI / options.length;
+            let finalAngle = (3 * Math.PI / 2) - (finalIndex * anglePer + anglePer / 2); // 指针在上方
+            let totalAngle = spins * 2 * Math.PI + finalAngle;
+            let duration = 3500;
+            let start = null;
+            function animateWheel(ts) {
+                if (!start) start = ts;
+                let progress = (ts - start) / duration;
+                if (progress > 1) progress = 1;
+                let ease = 1 - Math.pow(1 - progress, 3);
+                wheelAngle = totalAngle * ease;
+                drawWheel();
+                if (progress < 1) {
+                    wheelTimeout = requestAnimationFrame(animateWheel);
+                } else {
+                    spinning = false;
+                    wheelAngle = totalAngle % (2 * Math.PI);
+                    drawWheel();
+                    setTimeout(() => {
+                        wheelResult.textContent = '结果：' + options[finalIndex];
+                    }, 400);
+                }
+            }
+            cancelAnimationFrame(wheelTimeout);
+            requestAnimationFrame(animateWheel);
+        }
+        spinBtn.addEventListener('click', spinWheel);
+        window.addEventListener('resize', () => {
+            if (document.getElementById('wheelArea').style.display !== 'none') drawWheel();
+        });
         
         // 初始化应用
         init();
