@@ -20,6 +20,7 @@
             padding: 0;
             box-sizing: border-box;
             font-family: 'Helvetica Neue', Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent; /* 禁止移动端点击时的高亮 */
         }
         
         body {
@@ -27,6 +28,7 @@
             color: var(--text-color);
             min-height: 100vh;
             padding: 20px;
+            overflow-x: hidden; /* 防止水平滚动 */
         }
         
         .container {
@@ -396,6 +398,7 @@
             flex-direction: column;
             align-items: center;
             margin: 20px 0;
+            position: relative; /* 添加相对定位 */
         }
         .wheel-canvas {
             width: 90vw;
@@ -405,6 +408,8 @@
             background: transparent;
             border-radius: 50%;
             box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            margin: 0 auto;
+            touch-action: none; /* 阻止触摸事件引起的滚动 */
         }
         .pointer {
             width: 0;
@@ -413,6 +418,8 @@
             border-right: 18px solid transparent;
             border-bottom: 32px solid #ff6b6b;
             margin-bottom: -10px;
+            position: relative;
+            z-index: 2;
         }
         .spin-btn {
             margin-top: 18px;
@@ -425,10 +432,43 @@
             font-weight: bold;
             cursor: pointer;
             box-shadow: 0 2px 8px rgba(255,107,107,0.12);
-            transition: background 0.2s;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
         }
         .spin-btn:active {
             background: #e55a5a;
+            transform: scale(0.98);
+        }
+        .spin-btn:after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+        }
+        .spin-btn:focus:not(:active)::after {
+            animation: ripple 1s ease-out;
+        }
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 0.5;
+            }
+            20% {
+                transform: scale(25, 25);
+                opacity: 0.3;
+            }
+            100% {
+                opacity: 0;
+                transform: scale(40, 40);
+            }
         }
         .wheel-result {
             margin-top: 20px;
@@ -436,6 +476,107 @@
             color: var(--primary-color);
             font-weight: bold;
             min-height: 2em;
+            text-align: center;
+        }
+        
+        /* 移动端优化 */
+        @media (max-width: 480px) {
+            .container {
+                padding: 0;
+            }
+            .card {
+                border-radius: 12px;
+                padding: 15px;
+                margin-bottom: 15px;
+            }
+            .category-button {
+                min-width: calc(50% - 5px);
+                padding: 12px 8px;
+            }
+            .btn {
+                padding: 10px;
+            }
+            .result {
+                font-size: 1.5rem;
+            }
+            .wheel-canvas {
+                width: 85vw;
+                height: 85vw;
+            }
+            .option-item {
+                padding: 10px;
+            }
+        }
+        
+        .category-button.active {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(255, 107, 107, 0.4);
+        }
+        
+        #customOptionBtn {
+            display: none;
+            position: absolute;
+            top: -10px;
+            right: 0;
+            z-index: 3;
+            padding: 8px 12px;
+            font-size: 0.9rem;
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.2s;
+        }
+        
+        #customOptionBtn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        /* 添加转盘样式增强 */
+        .wheel-container::after {
+            content: '';
+            position: absolute;
+            top: 6px;
+            left: calc(50% - 3px);
+            width: 6px;
+            height: 15px;
+            background: #ff6b6b;
+            border-radius: 6px;
+            z-index: 5;
+        }
+
+        /* 选项列表样式改进 */
+        .options-list {
+            max-height: 300px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+        
+        .options-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .options-list::-webkit-scrollbar-track {
+            background: #f0f0f0;
+            border-radius: 3px;
+        }
+        
+        .options-list::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 3px;
+        }
+        
+        .options-list::-webkit-scrollbar-thumb:hover {
+            background: #aaa;
+        }
+        
+        .option-empty-placeholder {
+            text-align: center;
+            padding: 30px 0;
+            color: #999;
         }
     </style>
 </head>
@@ -471,6 +612,9 @@
                 <div id="wheelArea" class="wheel-container" style="display:none;">
                     <div class="pointer"></div>
                     <canvas id="wheelCanvas" class="wheel-canvas"></canvas>
+                    <button id="customOptionBtn" class="btn-outline">
+                        <i class="fas fa-cog"></i> 管理选项
+                    </button>
                     <button id="spinBtn" class="spin-btn">开始转动</button>
                     <div id="wheelResult" class="wheel-result"></div>
                 </div>
@@ -549,6 +693,11 @@
     </div>
 
     <script>
+        // 禁用双击缩放
+        document.addEventListener('dblclick', function(e) {
+            e.preventDefault();
+        });
+        
         // 预设选项数据
         const presetOptions = {
             food: ["火锅", "烤肉", "西餐", "日料", "川菜", "小吃", "海鲜", "粤菜", "面食", "快餐"],
@@ -596,7 +745,15 @@
             decideBtn.addEventListener('click', makeDecision);
             
             // 初始化再次决定按钮
-            againBtn.addEventListener('click', makeDecision);
+            againBtn.addEventListener('click', () => {
+                if (currentCategory !== 'custom') {
+                    // 如果不是自定义模式，滚动回转盘区域并触发转盘
+                    document.getElementById('wheelArea').scrollIntoView({ behavior: 'smooth' });
+                    setTimeout(() => spinWheel(), 500);
+                } else {
+                    makeDecision();
+                }
+            });
             
             // 初始化保存按钮
             saveBtn.addEventListener('click', () => {
@@ -616,6 +773,13 @@
                 });
             });
             
+            // 点击模态框外部区域关闭
+            window.addEventListener('click', (e) => {
+                if (e.target === saveModal) {
+                    saveModal.style.display = 'none';
+                }
+            });
+            
             // 初始化标签切换
             document.querySelectorAll('.tab').forEach(tab => {
                 tab.addEventListener('click', () => {
@@ -630,9 +794,44 @@
                 });
             });
             
+            // 初始化管理选项按钮
+            document.getElementById('customOptionBtn').addEventListener('click', () => {
+                // 切换到列表视图进行选项管理
+                document.getElementById('wheelArea').style.display = 'none';
+                optionsList.style.display = 'block';
+                addOptionBtn.style.display = 'inline-block';
+                
+                // 显示返回转盘按钮
+                const backBtn = document.createElement('button');
+                backBtn.id = 'backToWheelBtn';
+                backBtn.className = 'btn btn-primary';
+                backBtn.innerHTML = '<i class="fas fa-undo"></i> 返回转盘';
+                backBtn.style.marginBottom = '15px';
+                backBtn.style.width = '100%';
+                optionsList.parentNode.insertBefore(backBtn, optionsList);
+                
+                backBtn.addEventListener('click', () => {
+                    backBtn.remove();
+                    document.getElementById('wheelArea').style.display = 'flex';
+                    optionsList.style.display = 'none';
+                    addOptionBtn.style.display = 'none';
+                    drawWheel();
+                });
+            });
+            
             // 更新历史记录
             updateHistoryList();
             updateSavedSetsList();
+
+            // 为键盘事件添加监听器 - 按Enter保存选项集
+            setNameInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    saveOptionSet();
+                }
+            });
+
+            // 向转盘添加拖动功能
+            addWheelDragInteraction();
         }
         
         // 选择类别
@@ -657,6 +856,7 @@
             } else {
                 currentOptions = [];
                 addOption(); // 添加一个空选项
+                addOption(); // 至少添加两个选项
             }
             
             // 显示选项容器
@@ -671,14 +871,26 @@
                 optionsList.style.display = 'block';
                 addOptionBtn.style.display = 'inline-block';
                 decideBtn.style.display = 'inline-block';
+                document.getElementById('customOptionBtn').style.display = 'none';
             } else {
                 document.getElementById('wheelArea').style.display = 'flex';
                 optionsList.style.display = 'none';
                 addOptionBtn.style.display = 'none';
                 decideBtn.style.display = 'none';
+                document.getElementById('customOptionBtn').style.display = 'inline-block';
+                // 清除之前的结果
+                wheelResult.textContent = '';
                 drawWheel();
-                document.getElementById('wheelResult').textContent = '';
             }
+            
+            // 刷新分类按钮激活状态
+            document.querySelectorAll('.category-button').forEach(btn => {
+                if (btn.dataset.category === category) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
         }
         
         // 添加选项
@@ -699,15 +911,29 @@
             input.placeholder = '输入选项';
             input.addEventListener('input', (e) => {
                 const index = Array.from(optionsList.children).indexOf(li);
-                currentOptions[index] = e.target.value;
+                if(index !== -1) {
+                    currentOptions[index] = e.target.value;
+                    
+                    // 如果使用转盘，实时更新转盘
+                    if(currentCategory !== 'custom' && document.getElementById('wheelArea').style.display !== 'none') {
+                        drawWheel();
+                    }
+                }
             });
             
             const removeBtn = document.createElement('button');
             removeBtn.innerHTML = '<i class="fas fa-times"></i>';
             removeBtn.addEventListener('click', () => {
                 const index = Array.from(optionsList.children).indexOf(li);
-                currentOptions.splice(index, 1);
-                li.remove();
+                if(index !== -1) {
+                    currentOptions.splice(index, 1);
+                    li.remove();
+                    
+                    // 如果使用转盘，实时更新转盘
+                    if(currentCategory !== 'custom' && document.getElementById('wheelArea').style.display !== 'none') {
+                        drawWheel();
+                    }
+                }
             });
             
             li.appendChild(input);
@@ -807,6 +1033,11 @@
             
             if (validOptions.length === 0) {
                 alert('请至少添加一个有效选项！');
+                return;
+            }
+            
+            // 检查是否已存在同名选项集
+            if (savedSets[name] && !confirm('已存在同名选项集，是否覆盖？')) {
                 return;
             }
             
@@ -975,21 +1206,37 @@
             keys.forEach(key => {
                 const item = savedSets[key];
                 const li = document.createElement('li');
-                li.className = 'history-item';
+                li.className = 'history-item ' + item.category;
                 
                 let categoryText = '';
-                if (item.category === 'food') categoryText = '吃什么';
-                else if (item.category === 'activity') categoryText = '去哪玩';
-                else if (item.category === 'movie') categoryText = '看什么';
-                else categoryText = '自定义';
+                let categoryIcon = '';
+                if (item.category === 'food') {
+                    categoryText = '吃什么';
+                    categoryIcon = '<i class="fas fa-utensils"></i>';
+                }
+                else if (item.category === 'activity') {
+                    categoryText = '去哪玩';
+                    categoryIcon = '<i class="fas fa-walking"></i>';
+                }
+                else if (item.category === 'movie') {
+                    categoryText = '看什么';
+                    categoryIcon = '<i class="fas fa-film"></i>';
+                }
+                else {
+                    categoryText = '自定义';
+                    categoryIcon = '<i class="fas fa-plus"></i>';
+                }
                 
                 li.innerHTML = `
                     <div>
                         <div class="history-item-text">${key}</div>
-                        <div class="history-category">${categoryText} (${item.options.length}个选项)</div>
+                        <div class="history-category">${categoryIcon} ${categoryText} (${item.options.length}个选项)</div>
                     </div>
-                    <div>
+                    <div class="history-actions">
                         <button class="btn-outline load-set-btn" data-name="${key}">加载</button>
+                        <button class="history-action-btn delete-set-btn" title="删除选项集" data-name="${key}">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
                     </div>
                 `;
                 
@@ -1001,6 +1248,18 @@
                 btn.addEventListener('click', (e) => {
                     const name = e.target.dataset.name;
                     loadSavedSet(name);
+                });
+            });
+            
+            // 添加删除选项集事件
+            document.querySelectorAll('.delete-set-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const name = e.currentTarget.dataset.name;
+                    if (confirm(`确定要删除"${name}"选项集吗？`)) {
+                        delete savedSets[name];
+                        localStorage.setItem('savedSets', JSON.stringify(savedSets));
+                        updateSavedSetsList();
+                    }
                 });
             });
         }
@@ -1119,21 +1378,38 @@
         let spinning = false;
         let wheelAngle = 0;
         let wheelTimeout;
+        let wheelAnimationId;
         
         function drawWheel() {
             const options = currentOptions.filter(opt => opt.trim() !== '');
+            if (options.length === 0) return;
+            
+            // 重置画布尺寸以匹配CSS尺寸
+            wheelCanvas.width = wheelCanvas.offsetWidth;
+            wheelCanvas.height = wheelCanvas.offsetHeight;
+            
             const ctx = wheelCanvas.getContext('2d');
             const size = Math.min(wheelCanvas.width, wheelCanvas.height);
             const center = size / 2;
             const radius = center - 10;
-            wheelCanvas.width = wheelCanvas.offsetWidth;
-            wheelCanvas.height = wheelCanvas.offsetHeight;
+            
             ctx.clearRect(0, 0, wheelCanvas.width, wheelCanvas.height);
-            if (options.length === 0) return;
+            
             const colors = [
                 '#ff6b6b', '#4ecdc4', '#f9c74f', '#f8961e', '#43aa8b', '#577590', '#b5838d', '#6d6875', '#90be6d', '#277da1', '#f3722c', '#e07a5f'
             ];
             const anglePer = 2 * Math.PI / options.length;
+            
+            // 绘制外圆
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(center, center, radius, 0, 2 * Math.PI);
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = '#ddd';
+            ctx.stroke();
+            ctx.restore();
+            
+            // 绘制每个扇形
             for (let i = 0; i < options.length; i++) {
                 ctx.save();
                 ctx.beginPath();
@@ -1143,29 +1419,107 @@
                 ctx.fillStyle = colors[i % colors.length];
                 ctx.fill();
                 ctx.restore();
+                
+                // 绘制分隔线
+                ctx.save();
+                ctx.beginPath();
+                ctx.moveTo(center, center);
+                ctx.lineTo(
+                    center + Math.cos(i * anglePer + wheelAngle) * radius,
+                    center + Math.sin(i * anglePer + wheelAngle) * radius
+                );
+                ctx.lineWidth = 1;
+                ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+                ctx.stroke();
+                ctx.restore();
+                
                 // 文字
                 ctx.save();
                 ctx.translate(center, center);
                 ctx.rotate(i * anglePer + anglePer / 2 + wheelAngle);
                 ctx.textAlign = 'right';
-                ctx.font = 'bold 1rem Arial';
+                
+                // 动态调整字体大小
+                const fontSize = Math.max(12, Math.min(16, radius / 10));
+                ctx.font = `bold ${fontSize}px Arial`;
+                
                 ctx.fillStyle = '#fff';
                 ctx.shadowColor = 'rgba(0,0,0,0.15)';
                 ctx.shadowBlur = 2;
-                ctx.fillText(options[i], radius - 18, 8);
+                
+                // 文本长度检查和截断
+                let text = options[i];
+                const maxTextWidth = radius * 0.75;
+                
+                if (ctx.measureText(text).width > maxTextWidth) {
+                    // 尝试截断文本并添加省略号
+                    let truncated = false;
+                    for (let j = text.length; j > 0; j--) {
+                        const truncatedText = text.substring(0, j) + '...';
+                        if (ctx.measureText(truncatedText).width <= maxTextWidth) {
+                            text = truncatedText;
+                            truncated = true;
+                            break;
+                        }
+                    }
+                    
+                    // 如果无法合理截断，则使用更小的字体
+                    if (!truncated) {
+                        ctx.font = `bold ${fontSize * 0.75}px Arial`;
+                    }
+                }
+                
+                ctx.fillText(text, radius - 18, 8);
                 ctx.restore();
             }
+            
+            // 绘制中心圆
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(center, center, radius * 0.1, 0, 2 * Math.PI);
+            ctx.fillStyle = 'white';
+            ctx.fill();
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = '#ddd';
+            ctx.stroke();
+            ctx.restore();
         }
         
         function spinWheel() {
             if (spinning) return;
+            
             const options = currentOptions.filter(opt => opt.trim() !== '');
             if (options.length === 0) {
                 wheelResult.textContent = '请先添加选项';
                 return;
             }
+            
+            if (options.length < 2) {
+                wheelResult.textContent = '至少需要2个选项';
+                return;
+            }
+            
+            // 清除任何现有的动画
+            if (wheelAnimationId) {
+                cancelAnimationFrame(wheelAnimationId);
+                wheelAnimationId = null;
+            }
+            
             spinning = true;
             wheelResult.textContent = '';
+            
+            // 隐藏之前的结果卡片
+            resultCard.style.display = 'none';
+            
+            // 添加按钮动画
+            spinBtn.disabled = true;
+            spinBtn.textContent = '转动中...';
+            spinBtn.style.backgroundColor = '#999';
+            
+            // 音效（可选）
+            const clickSound = new Audio('data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4LjI5LjEwMAAAAAAAAAAAAAAA//tQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAADmAD///////////////////////////////////////////8AAAA8TEFNRTMuMTAwAc0AAAAAAAAAABSAJAJAQgAAgAAAA5jDbWgRAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//sQRAAP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAANIAAAARVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/+xBkLg/wAABpAAAACAAADSAAAAEAAAGkAAAAIAAANIAAAARVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV');
+            clickSound.play().catch(e => {}); // 忽略浏览器阻止自动播放的错误
+            
             let spins = Math.floor(Math.random() * 3) + 5; // 5~7圈
             let finalIndex = Math.floor(Math.random() * options.length);
             let anglePer = 2 * Math.PI / options.length;
@@ -1173,31 +1527,135 @@
             let totalAngle = spins * 2 * Math.PI + finalAngle;
             let duration = 3500;
             let start = null;
+            
             function animateWheel(ts) {
                 if (!start) start = ts;
                 let progress = (ts - start) / duration;
+                
                 if (progress > 1) progress = 1;
+                
+                // 缓动函数，开始快，结束慢
                 let ease = 1 - Math.pow(1 - progress, 3);
                 wheelAngle = totalAngle * ease;
                 drawWheel();
+                
                 if (progress < 1) {
-                    wheelTimeout = requestAnimationFrame(animateWheel);
+                    wheelAnimationId = requestAnimationFrame(animateWheel);
                 } else {
                     spinning = false;
                     wheelAngle = totalAngle % (2 * Math.PI);
                     drawWheel();
+                    
+                    // 重置按钮状态
+                    spinBtn.disabled = false;
+                    spinBtn.textContent = '开始转动';
+                    spinBtn.style.backgroundColor = '';
+                    
+                    // 显示结果，并添加动画效果
                     setTimeout(() => {
-                        wheelResult.textContent = '结果：' + options[finalIndex];
+                        const result = options[finalIndex];
+                        
+                        // 同时更新转盘结果和主结果区域
+                        wheelResult.textContent = '结果：' + result;
+                        wheelResult.classList.add('shake-animation');
+                        
+                        // 显示主结果卡片
+                        resultElement.textContent = result;
+                        resultCard.style.display = 'block';
+                        
+                        // 创建五彩纸屑效果
+                        createConfetti();
+                        
+                        // 滚动到结果区域
+                        resultCard.scrollIntoView({ behavior: 'smooth' });
+                        
+                        setTimeout(() => {
+                            wheelResult.classList.remove('shake-animation');
+                        }, 500);
                     }, 400);
                 }
             }
-            cancelAnimationFrame(wheelTimeout);
-            requestAnimationFrame(animateWheel);
+            
+            wheelAnimationId = requestAnimationFrame(animateWheel);
         }
+        
         spinBtn.addEventListener('click', spinWheel);
+        
+        // 监听窗口尺寸变化，重新绘制转盘
         window.addEventListener('resize', () => {
-            if (document.getElementById('wheelArea').style.display !== 'none') drawWheel();
+            if (document.getElementById('wheelArea').style.display !== 'none') {
+                drawWheel();
+            }
         });
+        
+        // 为转盘添加拖动旋转交互
+        function addWheelDragInteraction() {
+            let isDragging = false;
+            let startAngle = 0;
+            let startPointerPosition = { x: 0, y: 0 };
+            
+            // 获取相对于元素中心的角度
+            function getAngleFromCenter(element, x, y) {
+                const rect = element.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+                
+                return Math.atan2(y - centerY, x - centerX);
+            }
+            
+            // 触摸事件
+            wheelCanvas.addEventListener('touchstart', (e) => {
+                if (spinning) return;
+                e.preventDefault();
+                const touch = e.touches[0];
+                startAngle = getAngleFromCenter(wheelCanvas, touch.clientX, touch.clientY) - wheelAngle;
+                isDragging = true;
+                startPointerPosition = { x: touch.clientX, y: touch.clientY };
+            });
+            
+            wheelCanvas.addEventListener('touchmove', (e) => {
+                if (!isDragging || spinning) return;
+                e.preventDefault();
+                const touch = e.touches[0];
+                const currentAngle = getAngleFromCenter(wheelCanvas, touch.clientX, touch.clientY);
+                wheelAngle = currentAngle - startAngle;
+                drawWheel();
+            });
+            
+            wheelCanvas.addEventListener('touchend', () => {
+                isDragging = false;
+            });
+            
+            // 鼠标事件
+            wheelCanvas.addEventListener('mousedown', (e) => {
+                if (spinning) return;
+                e.preventDefault();
+                startAngle = getAngleFromCenter(wheelCanvas, e.clientX, e.clientY) - wheelAngle;
+                isDragging = true;
+                startPointerPosition = { x: e.clientX, y: e.clientY };
+                
+                // 修改鼠标指针
+                wheelCanvas.style.cursor = 'grabbing';
+            });
+            
+            window.addEventListener('mousemove', (e) => {
+                if (!isDragging || spinning) return;
+                e.preventDefault();
+                const currentAngle = getAngleFromCenter(wheelCanvas, e.clientX, e.clientY);
+                wheelAngle = currentAngle - startAngle;
+                drawWheel();
+            });
+            
+            window.addEventListener('mouseup', () => {
+                if (isDragging) {
+                    isDragging = false;
+                    wheelCanvas.style.cursor = 'grab';
+                }
+            });
+            
+            // 添加鼠标样式
+            wheelCanvas.style.cursor = 'grab';
+        }
         
         // 初始化应用
         init();
